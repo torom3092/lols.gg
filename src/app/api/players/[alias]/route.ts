@@ -3,9 +3,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-// ✅ 타입을 직접 쓰지 말고 구조 분해 + params 그대로 받아야 함
-export async function DELETE(req: NextRequest, { params }: { params: { alias: any } }) {
-  const { alias } = params;
+export async function DELETE(req: NextRequest, { params }: { params: Record<"alias", string> }) {
+  const alias = params.alias;
 
   try {
     const client = await connectToDB();
