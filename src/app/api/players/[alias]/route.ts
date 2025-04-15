@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
 export async function DELETE(req: NextRequest, context: { params: { alias: string } }) {
-  try {
-    const { alias } = context.params;
+  const { alias } = context.params;
 
+  try {
     const client = await connectToDB();
     const db = client.db("내전GG");
 
