@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const collection = db.collection("matches");
 
     // uniqueId 기준으로 중복 검사
-    const existing = await collection.findOne({ uniqueId: body.uniqueId });
+    const existing = await collection.findOne({ matchId: body.matchId });
     if (existing) {
       return NextResponse.json({ message: "이미 업로드된 매치입니다." }, { status: 409 });
     }
