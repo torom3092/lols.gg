@@ -3,7 +3,7 @@
 import { useState } from "react";
 import UploadMatchForm from "@/app/admin/components/UploadMatchForm";
 import AddPlayerPage from "@/app/admin/components/AddPlayerPage"; // 그대로 import 가능
-
+export const dynamic = "force-dynamic";
 export default function AdminPage() {
   const [tab, setTab] = useState<"upload" | "player">("upload");
 
