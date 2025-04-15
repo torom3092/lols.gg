@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const VALID_PASSWORD = "07272";
 
   if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-    const response = NextResponse.redirect(new URL("/admin/dashboard", req.url));
+    const response = NextResponse.redirect(new URL("/admin/submit", req.url));
     response.cookies.set("authToken", "secret-token", {
       httpOnly: true,
       path: "/",
