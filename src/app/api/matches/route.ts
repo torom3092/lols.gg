@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb"; // 너가 사용하는 Mongo 연결 유틸
-import { ObjectId } from "mongodb";
 
 export async function GET() {
   try {
