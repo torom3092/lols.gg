@@ -3,7 +3,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-export async function DELETE(req: NextRequest, context: { params: { alias: string } }) {
+// ✅ context의 타입은 반드시 아래처럼 명시해야 합니다
+type Context = {
+  params: {
+    alias: string;
+  };
+};
+
+export async function DELETE(req: NextRequest, context: Context) {
   const { alias } = context.params;
 
   try {
