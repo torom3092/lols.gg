@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // name → { alias, wins, games }
-    const resultMap = new Map<string, { name: string; alias: string; wins: number; games: number }>();
+    // name → { alias, wins, losses, games }
+    const resultMap = new Map<string, { name: string; alias: string; wins: number; losses: number; games: number }>();
 
     for (const match of matches) {
       const date = new Date(match.gameDate);
@@ -31,24 +31,31 @@ export async function GET(req: NextRequest) {
 
       for (const p of match.participants) {
         const name = p.name ?? "";
-        const alias = aliasMap.get(name) ?? ""; // 등록 안 된 경우 alias는 ""
-        const key = name; // name 단위로 저장
+        const alias = aliasMap.get(name) ?? "";
+        const key = alias || name;
 
         if (!resultMap.has(key)) {
-          resultMap.set(key, { name, alias, wins: 0, games: 0 });
+          resultMap.set(key, { name, alias, wins: 0, losses: 0, games: 0 });
         }
+
         const stat = resultMap.get(key)!;
         stat.games += 1;
-        if (p.win) stat.wins += 1;
+
+        if (p.win === "Win") {
+          stat.wins += 1;
+        } else if (p.win === "Fail") {
+          stat.losses += 1;
+        }
       }
     }
 
-    const result = Array.from(resultMap.values()).map(({ name, alias, wins, games }) => ({
+    const result = Array.from(resultMap.values()).map(({ name, alias, wins, losses, games }) => ({
       name,
       alias,
       wins,
+      losses,
       games,
-      winrate: Math.round((wins / games) * 100),
+      winrate: games === 0 ? 0 : Math.round((wins / games) * 100),
     }));
 
     return NextResponse.json(result);

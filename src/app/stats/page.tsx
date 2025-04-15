@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 
 interface WinrateEntry {
   alias: string;
+  name: string;
   wins: number;
+  losses: number;
   games: number;
   winrate: number;
 }
@@ -15,7 +17,6 @@ export default function StatsPage() {
   const [selectedYear, setSelectedYear] = useState("2025");
   const [selectedMonth, setSelectedMonth] = useState("4");
 
-  // 연도별 통계만 fetch
   useEffect(() => {
     const fetchYearData = async () => {
       const params = new URLSearchParams();
@@ -30,7 +31,6 @@ export default function StatsPage() {
     fetchYearData();
   }, [selectedYear]);
 
-  // 월별 통계만 fetch
   useEffect(() => {
     const fetchMonthData = async () => {
       const params = new URLSearchParams();
@@ -47,7 +47,6 @@ export default function StatsPage() {
     <main className="p-6 max-w-7xl mx-auto text-white">
       <h1 className="text-2xl font-bold mb-6 text-center">🏆 승률 통계</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 왼쪽: 연도별 통계 */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
           <h2 className="text-lg font-semibold mb-3">📆 연도별 승률</h2>
           <div className="mb-4 space-x-2">
@@ -66,7 +65,6 @@ export default function StatsPage() {
           <WinrateTable data={yearData} />
         </div>
 
-        {/* 오른쪽: 월별 통계 */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
           <h2 className="text-lg font-semibold mb-3">🗓 시즌별 승률</h2>
           <div className="mb-4 flex flex-wrap gap-2">
@@ -92,7 +90,6 @@ export default function StatsPage() {
   );
 }
 
-// 공통 테이블 컴포넌트
 function WinrateTable({ data }: { data: WinrateEntry[] }) {
   const filteredData = data.filter((entry) => entry.alias !== "guest");
 
@@ -107,7 +104,7 @@ function WinrateTable({ data }: { data: WinrateEntry[] }) {
           </tr>
         </thead>
         <tbody>
-          {filteredData.map((entry: any) => {
+          {filteredData.map((entry) => {
             const isUnregistered = !entry.alias || entry.alias.trim() === "";
             const displayName = isUnregistered ? `${entry.name} (guest)` : entry.alias;
 
@@ -115,7 +112,8 @@ function WinrateTable({ data }: { data: WinrateEntry[] }) {
               <tr key={`${entry.alias}-${entry.name}`} className="border-t border-white/10">
                 <td className="px-4 py-2">{displayName}</td>
                 <td className="px-4 py-2 text-center">
-                  {entry.wins} / {entry.games - entry.wins}
+                  <span className="text-green-400">{entry.wins}</span> /{" "}
+                  <span className="text-red-400">{entry.losses}</span>
                 </td>
                 <td className="px-4 py-2 text-center">{entry.winrate}%</td>
               </tr>
