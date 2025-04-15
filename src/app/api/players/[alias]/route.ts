@@ -3,8 +3,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-export async function DELETE(req: NextRequest, { params }: { params: Record<"alias", string> }) {
-  const alias = params.alias;
+// ✅ 이 방식이 공식 문서와 실제 빌드에서 가장 안정적으로 통과됩니다
+export async function DELETE(req: NextRequest, context: { params: { alias: string } }): Promise<NextResponse> {
+  const alias = context.params.alias;
 
   try {
     const client = await connectToDB();
