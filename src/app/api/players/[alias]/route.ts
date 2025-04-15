@@ -3,15 +3,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-// ✅ context의 타입은 반드시 아래처럼 명시해야 합니다
-type Context = {
-  params: {
-    alias: string;
-  };
-};
-
-export async function DELETE(req: NextRequest, context: Context) {
-  const { alias } = context.params;
+// ✅ 타입을 직접 쓰지 말고 구조 분해 + params 그대로 받아야 함
+export async function DELETE(req: NextRequest, { params }: { params: { alias: string } }) {
+  const { alias } = params;
 
   try {
     const client = await connectToDB();
