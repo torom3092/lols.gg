@@ -1,13 +1,5 @@
 import { connectToDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
-import { ObjectId } from "mongodb";
-import crypto from "crypto"; // Node.js의 crypto 모듈 사용
-
-// participants 배열과 gameDate를 결합하여 고유 키 생성
-function generateHash(participants: any[], gameDate: string): string {
-  const data = JSON.stringify(participants) + gameDate;
-  return crypto.createHash("sha256").update(data).digest("hex");
-}
 
 // GET 메서드 - gameDate와 participants 배열을 기준으로 데이터 찾기
 export async function GET(req: Request, { params }: { params: { participantsHash: string } }) {
