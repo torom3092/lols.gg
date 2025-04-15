@@ -3,21 +3,19 @@ export function parseReplaybookJson(raw: any) {
   const gameDate = raw.gameDate ? new Date(raw.gameDate) : new Date(0);
   const gameDuration = raw.gameDuration;
 
-  // matchId가 있으면 그대로 사용, 없거나 Unknown이면 생성
-  const matchId =
-    raw.matchId && raw.matchId !== "Unknown"
-      ? raw.matchId
-      : `unknown-${gameDuration}-${(raw.participants ?? [])
-          .map((p: any) => p.RIOT_ID_GAME_NAME ?? "Unknown")
-          .join("-")}`;
-
   // 참가자 정보 정제
   const participants = (raw.participants || []).map((p: any) => {
     const teamIdRaw = p.TEAM;
     const teamId = teamIdRaw === "100" ? "blue" : teamIdRaw === "200" ? "red" : "unknown";
 
+    // name 처리: RIOT_ID_GAME_NAME이 Unknown이거나 없을 경우 NAME 사용
+    const name =
+      !p.RIOT_ID_GAME_NAME || p.RIOT_ID_GAME_NAME === "Unknown"
+        ? p.NAME ?? "Unknown"
+        : p.RIOT_ID_GAME_NAME;
+
     return {
-      name: p.RIOT_ID_GAME_NAME ?? "Unknown",
+      name,
       championName: p.SKIN ?? null,
       level: p.LEVEL ?? 0,
       kills: p.CHAMPIONS_KILLED ?? 0,
@@ -32,6 +30,12 @@ export function parseReplaybookJson(raw: any) {
       position: p.INDIVIDUAL_POSITION ?? "UNKNOWN",
     };
   });
+
+  // matchId 생성: 이름들도 위에서 파싱한 name을 다시 써야 일관성 있음
+  const matchId =
+    raw.matchId && raw.matchId !== "Unknown"
+      ? raw.matchId
+      : `unknown-${gameDuration}-${participants.map((p:any) => p.name).join("-")}`;
 
   return {
     matchId,

@@ -29,6 +29,7 @@ export async function GET(req: NextRequest) {
       if (year && date.getFullYear() !== Number(year)) continue;
       if (month && date.getMonth() + 1 !== Number(month)) continue;
 
+      
       for (const p of match.participants) {
         const name = p.name ?? "";
         const alias = aliasMap.get(name) ?? "";

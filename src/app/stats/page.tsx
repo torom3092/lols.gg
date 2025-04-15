@@ -35,14 +35,17 @@ export default function StatsPage() {
     const fetchMonthData = async () => {
       const params = new URLSearchParams();
       params.append("month", selectedMonth);
+      if (selectedYear && selectedYear !== "전체") {
+        params.append("year", selectedYear);
+      }
       const res = await fetch(`/api/stats/winrates?${params.toString()}`);
       if (!res.ok) return setMonthData([]);
       const json = await res.json();
       setMonthData(json);
     };
     fetchMonthData();
-  }, [selectedMonth]);
-
+  }, [selectedMonth, selectedYear]); // 👈 여기도 selectedYear 추가
+  
   return (
     <main className="p-6 max-w-7xl mx-auto text-white">
       <h1 className="text-2xl font-bold mb-6 text-center">🏆 승률 통계</h1>
@@ -55,7 +58,9 @@ export default function StatsPage() {
                 key={year}
                 onClick={() => setSelectedYear(year === "전체" ? "" : year)}
                 className={`px-3 py-1 rounded ${
-                  selectedYear === year ? "bg-blue-600" : "bg-white/10 hover:bg-white/20"
+                  selectedYear === year
+                    ? "bg-blue-600"
+                    : "bg-white/10 hover:bg-white/20"
                 }`}
               >
                 {year}
@@ -75,7 +80,9 @@ export default function StatsPage() {
                   key={m}
                   onClick={() => setSelectedMonth(m)}
                   className={`px-3 py-1 rounded text-sm ${
-                    selectedMonth === m ? "bg-green-600" : "bg-white/10 hover:bg-white/20"
+                    selectedMonth === m
+                      ? "bg-green-600"
+                      : "bg-white/10 hover:bg-white/20"
                   }`}
                 >
                   {m}
@@ -106,10 +113,15 @@ function WinrateTable({ data }: { data: WinrateEntry[] }) {
         <tbody>
           {filteredData.map((entry) => {
             const isUnregistered = !entry.alias || entry.alias.trim() === "";
-            const displayName = isUnregistered ? `${entry.name} (guest)` : entry.alias;
+            const displayName = isUnregistered
+              ? `${entry.name} (guest)`
+              : entry.alias;
 
             return (
-              <tr key={`${entry.alias}-${entry.name}`} className="border-t border-white/10">
+              <tr
+                key={`${entry.alias}-${entry.name}`}
+                className="border-t border-white/10"
+              >
                 <td className="px-4 py-2">{displayName}</td>
                 <td className="px-4 py-2 text-center">
                   <span className="text-green-400">{entry.wins}</span> /{" "}
