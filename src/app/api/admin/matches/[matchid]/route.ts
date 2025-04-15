@@ -2,15 +2,15 @@ import { connectToDB } from "@/lib/mongodb";
 import { NextResponse } from "next/server";
 
 // GET 메서드 - gameDate와 participants 배열을 기준으로 데이터 찾기
-export async function GET(req: Request, { params }: { params: { participantsHash: string } }) {
-  const { participantsHash } = params;
+export async function GET(req: Request, { params }: { params: { matchid: string } }) {
+  const { matchid } = params;
 
   try {
     const client = await connectToDB();
     const db = client.db("내전GG");
 
     // participantsHash를 기준으로 경기 데이터를 찾음
-    const match = await db.collection("matches").findOne({ participantsHash });
+    const match = await db.collection("matches").findOne({ matchid });
 
     if (!match) {
       return NextResponse.json({ success: false, message: "Match not found" }, { status: 404 });
