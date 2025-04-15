@@ -1,5 +1,3 @@
-// src/app/admin/login/submit/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -7,13 +5,19 @@ export async function POST(req: NextRequest) {
   const username = formData.get("username");
   const password = formData.get("password");
 
-  // 여기에 실제 인증 로직을 넣을 수 있어
   if (username === "admin" && password === "07272") {
-    const res = NextResponse.redirect(new URL("/admin/upload-match", req.url));
+    const res = new NextResponse(null, {
+      status: 303,
+      headers: {
+        Location: "/admin/upload-match",
+      },
+    });
+
     res.cookies.set("authToken", "secure-token", {
       httpOnly: true,
       path: "/",
     });
+
     return res;
   }
 
