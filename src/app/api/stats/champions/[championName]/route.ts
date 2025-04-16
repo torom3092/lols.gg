@@ -1,10 +1,11 @@
-// app/api/stats/champions/[championName]/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-export async function GET(req: NextRequest, context: { params: Record<string, string> }) {
-  const { championName } = context.params;
+export async function GET(
+  req: NextRequest,
+  { params }: any // ✅ 타입 제거 (이게 핵심!)
+) {
+  const championName = params.championName;
 
   if (!championName) {
     return NextResponse.json({ error: "챔피언 이름이 없습니다." }, { status: 400 });
