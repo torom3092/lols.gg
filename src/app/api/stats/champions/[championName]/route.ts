@@ -3,10 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-export async function GET(
-  req: NextRequest,
-  context: { params: { championName: string } } // ✅ 이 구조 중요
-) {
+export async function GET(req: NextRequest, context: { params: Record<string, string> }) {
   const { championName } = context.params;
 
   if (!championName) {
