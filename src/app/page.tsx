@@ -29,6 +29,11 @@ export default function DashboardPage() {
       description: "내전기록 롤스컵 하이라이트 모아보기",
       href: "/history",
     },
+    {
+      title: " 챔피언 통계",
+      description: "라인별 챔피언 통계 기록",
+      href: "/championStats",
+    },
   ];
 
   const handleClick = (href: string) => {
