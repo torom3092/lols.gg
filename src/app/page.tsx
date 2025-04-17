@@ -24,7 +24,7 @@ export default function DashboardPage() {
     {
       title: "플레이어 통계",
       description: "업데이트 예정",
-      href: "popup", // 팝업 열기 용도
+      href: "/player-stats", // 팝업 열기 용도
     },
     {
       title: " 관리자 페이지",
