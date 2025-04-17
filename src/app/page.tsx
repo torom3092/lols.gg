@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface HighlightVideo {
+  _id: string;
+  title: string;
+  youtubeId: string;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
+  const [highlight, setHighlight] = useState<HighlightVideo | null>(null);
 
   const cards = [
     {
@@ -44,6 +51,20 @@ export default function DashboardPage() {
     }
   };
 
+  useEffect(() => {
+    const fetchLatestHighlight = async () => {
+      try {
+        const res = await fetch("/api/highlights");
+        const json = await res.json();
+        if (json.length > 0) setHighlight(json[0]);
+      } catch (err) {
+        console.error("하이라이트 불러오기 실패:", err);
+      }
+    };
+
+    fetchLatestHighlight();
+  }, []);
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-6 main_back">
       <h1 className="text-2xl font-bold mb-6 text-center"> 롤스기릿.gg </h1>
@@ -68,6 +89,22 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {highlight && (
+        <div className="mt-16 max-w-6xl mx-auto">
+          <h2 className="text-xl font-bold mb-4 text-center">🎯 금주의 하이라이트</h2>
+
+          <div className="w-full aspect-video rounded-xl overflow-hidden">
+            <iframe
+              src={`https://www.youtube.com/embed/${highlight.youtubeId}`}
+              className="w-full h-full"
+              allowFullScreen
+            />
+          </div>
+
+          <p className="mt-2 text-center text-lg font-semibold">{highlight.title}</p>
+        </div>
+      )}
 
       {/* 팝업 모달 */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
