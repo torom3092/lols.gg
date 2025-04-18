@@ -2,14 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import CHAMPION_KR_MAP from "@/lib/championNameKo"; // ✅ 반드시 추가되어야 함
 
-type Context = {
-  params: {
-    alias: string;
-  };
-};
-
-export async function GET(req: NextRequest, context: Context) {
-  const alias = context.params.alias;
+export async function GET(req: NextRequest, { params }: { params: { alias: string } }) {
+  const alias = params.alias;
 
   if (!alias || alias === "null") {
     return NextResponse.json({ error: "잘못된 alias입니다." }, { status: 400 });
