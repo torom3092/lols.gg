@@ -23,7 +23,7 @@ export default function DashboardPage() {
     },
     {
       title: "플레이어 통계",
-      description: "업데이트 예정",
+      description: "플레이어 통계 및 상세정보",
       href: "/player-stats", // 팝업 열기 용도
     },
     {
