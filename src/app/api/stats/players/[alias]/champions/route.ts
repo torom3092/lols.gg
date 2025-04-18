@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
-import CHAMPION_KR_MAP from "@/lib/championNameKo"; // ✅ 반드시 추가되어야 함
+import CHAMPION_KR_MAP from "@/lib/championNameKo"; // ✅ 챔피언 한글명 매핑
 
-export async function GET(req: NextRequest, { params }: { params: { alias: string } }) {
-  const alias = params.alias;
+export async function GET(req: NextRequest, context: { params: { alias: string } }) {
+  const alias = context.params.alias;
 
   if (!alias || alias === "null") {
     return NextResponse.json({ error: "잘못된 alias입니다." }, { status: 400 });
@@ -86,13 +86,12 @@ export async function GET(req: NextRequest, { params }: { params: { alias: strin
     };
   });
 
-  // ✅ 전체 합산 항목 추가
   if (result.length > 0) {
     const total = result.reduce(
       (acc, curr) => {
         acc.wins += curr.wins;
         acc.losses += curr.losses;
-        acc.kills += curr.kda * curr.games * (curr.losses + curr.wins > 0 ? 1 : 0);
+        acc.kills += curr.kda * curr.games;
         acc.games += curr.games;
         acc.damage += curr.avgDamage * curr.games;
         acc.gold += curr.avgGold * curr.games;
@@ -101,13 +100,13 @@ export async function GET(req: NextRequest, { params }: { params: { alias: strin
       { wins: 0, losses: 0, kills: 0, games: 0, damage: 0, gold: 0 }
     );
 
-    const totalDeaths = total.games * 1; // KDA 계산할 때 사용
+    const totalDeaths = total.games; // KDA 계산 기준: 판수 = 평균 1 death
     const avgKDA = totalDeaths === 0 ? total.kills : total.kills / totalDeaths;
 
     result.unshift({
       championName: "Total",
       championKR: "모든 챔피언",
-      imageUrl: "/icons/lol.png", // ✅ 전체 아이콘 커스텀 이미지
+      imageUrl: "/icons/lol.png",
       wins: total.wins,
       losses: total.losses,
       games: total.games,
