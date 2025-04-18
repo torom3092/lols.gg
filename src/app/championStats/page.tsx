@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import CHAMPION_KR_MAP from "@/lib/championNameKo";
 
 interface ChampionStatsEntry {
   championName: string;
@@ -123,7 +124,7 @@ export default function ChampionStatsPage() {
                 className="flex items-center space-x-3 cursor-pointer hover:bg-white/10 p-2 rounded"
               >
                 <img src={entry.imageUrl} alt={entry.championName} className="w-8 h-8 rounded-full" />
-                <div className="flex-1">{entry.championName}</div>
+                <div className="flex-1">{CHAMPION_KR_MAP[entry.championName]}</div>
                 <div className="text-sm">
                   <span className="text-green-400">{entry.wins}</span> /{" "}
                   <span className="text-red-400">{entry.losses}</span>
