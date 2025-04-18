@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import CHAMPION_KR_MAP from "@/lib/championNameKo"; // ✅ 반드시 추가되어야 함
 
-export async function GET(req: NextRequest, context: { params: { alias: string } }) {
+type Context = {
+  params: {
+    alias: string;
+  };
+};
+
+export async function GET(req: NextRequest, context: Context) {
   const alias = context.params.alias;
 
   if (!alias || alias === "null") {
