@@ -41,5 +41,6 @@ export function parseReplaybookJson(raw: any) {
     matchId,
     gameDate,
     participants,
+    gameDuration
   };
 }
