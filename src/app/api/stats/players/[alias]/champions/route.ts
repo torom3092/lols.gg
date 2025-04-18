@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 import CHAMPION_KR_MAP from "@/lib/championNameKo"; // ✅ 반드시 추가되어야 함
 
-
-export async function GET(req: NextRequest, context: Promise<{ params: { alias: string } }>) {
-  const { params } = await context;
-  const alias = params.alias;
+export async function GET(req: NextRequest, context: { params: { alias: string } }) {
+  const alias = context.params.alias;
 
   if (!alias || alias === "null") {
     return NextResponse.json({ error: "잘못된 alias입니다." }, { status: 400 });
@@ -22,15 +20,18 @@ export async function GET(req: NextRequest, context: Promise<{ params: { alias: 
   const nicknames = player.nicknames;
   const matches = await db.collection("matches").find().toArray();
 
-  const champStats: Record<string, {
-    wins: number;
-    losses: number;
-    kills: number;
-    deaths: number;
-    assists: number;
-    damage: number;
-    gold: number;
-  }> = {};
+  const champStats: Record<
+    string,
+    {
+      wins: number;
+      losses: number;
+      kills: number;
+      deaths: number;
+      assists: number;
+      damage: number;
+      gold: number;
+    }
+  > = {};
 
   for (const match of matches) {
     const date = new Date(match.gameDate);
@@ -69,7 +70,7 @@ export async function GET(req: NextRequest, context: Promise<{ params: { alias: 
 
   const result = Object.entries(champStats).map(([championName, stat]) => {
     const total = stat.wins + stat.losses;
-    const kda = stat.deaths === 0 ? (stat.kills + stat.assists) : ((stat.kills + stat.assists) / stat.deaths);
+    const kda = stat.deaths === 0 ? stat.kills + stat.assists : (stat.kills + stat.assists) / stat.deaths;
 
     return {
       championName,
