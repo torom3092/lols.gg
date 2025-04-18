@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-export async function GET(req: NextRequest, { params }: { params: { alias: string } }) {
-  const alias = params.alias;
+export async function GET(req: NextRequest, context: any) {
+  const alias = context?.params?.alias;
 
   const position = req.nextUrl.searchParams.get("position");
 
