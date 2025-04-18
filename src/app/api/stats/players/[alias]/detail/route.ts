@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
-import { AppRouteHandlerFnContext } from "next/dist/shared/lib/app-router-context.shared";
 
-export async function GET(req: NextRequest, context: AppRouteHandlerFnContext) {
-  const alias = context.params.alias;
+export async function GET(req: NextRequest, { params }: { params: { alias: string } }) {
+  const alias = params.alias;
 
   const position = req.nextUrl.searchParams.get("position");
 
