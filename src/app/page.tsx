@@ -41,6 +41,21 @@ export default function DashboardPage() {
       description: "라인별 챔피언 통계 기록",
       href: "/championStats",
     },
+    {
+      title: " 랭킹시스템",
+      description: "예정",
+      href: "/",
+    },
+    {
+      title: "팀 조합 시뮬레이터",
+      description: "예정",
+      href: "/",
+    },
+    {
+      title: "상대 전적 비교",
+      description: "예정",
+      href: "/",
+    },
   ];
 
   const handleClick = (href: string) => {
@@ -67,7 +82,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-6 main_back">
-      <h1 className="text-2xl font-bold mb-6 text-center"> 롤스기릿.gg </h1>
+      <h1 className="text-2xl font-bold mb-6 text-center"> </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {cards.map((card) => (
           <div

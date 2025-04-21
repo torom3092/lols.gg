@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
+import CHAMPION_KR_MAP from "@/lib/championNameKo";
 
-export async function GET(
-  req: NextRequest,
-  { params }: any // ✅ 타입 제거 (이게 핵심!)
-) {
+export async function GET(req: NextRequest, { params }: any) {
   const championName = params.championName;
 
   if (!championName) {
@@ -17,13 +15,21 @@ export async function GET(
 
   const client = await connectToDB();
   const db = client.db("내전GG");
-  const matches = await db.collection("matches").find().toArray();
 
+  // ✅ alias 매핑 불러오기
+  const aliasDocs = await db.collection("players").find().toArray();
+  const nicknameToAlias: Record<string, string> = {};
+  for (const doc of aliasDocs) {
+    for (const nick of doc.nicknames) {
+      nicknameToAlias[nick] = doc.alias;
+    }
+  }
+
+  const matches = await db.collection("matches").find().toArray();
   const resultMap = new Map<string, { name: string; wins: number; losses: number }>();
 
   for (const match of matches) {
     if (!match?.gameDate) continue;
-
     const date = new Date(match.gameDate);
     if (year && date.getFullYear() !== Number(year)) continue;
 
@@ -31,15 +37,14 @@ export async function GET(
       if (!p?.championName || !p?.name) continue;
 
       if (p.championName.toLowerCase() !== championName.toLowerCase()) continue;
-
       if (position && position !== "전체" && p.position !== position) continue;
 
-      const key = p.name;
-      if (!resultMap.has(key)) {
-        resultMap.set(key, { name: p.name, wins: 0, losses: 0 });
+      const alias = nicknameToAlias[p.name] || p.name;
+      if (!resultMap.has(alias)) {
+        resultMap.set(alias, { name: alias, wins: 0, losses: 0 });
       }
 
-      const stat = resultMap.get(key)!;
+      const stat = resultMap.get(alias)!;
       p.win === "Win" ? stat.wins++ : stat.losses++;
     }
   }

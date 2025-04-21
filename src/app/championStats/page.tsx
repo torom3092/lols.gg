@@ -139,7 +139,9 @@ export default function ChampionStatsPage() {
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
           {selectedChampion ? (
             <div>
-              <h2 className="text-center mb-4 text-gray-300">{selectedChampion} 챔피언 플레이어 정보</h2>
+              <h2 className="text-center mb-4 text-gray-300">
+                {CHAMPION_KR_MAP[selectedChampion]} 챔피언 플레이어 정보
+              </h2>
               {loadingPlayers ? (
                 <p className="text-center text-gray-500">로딩 중...</p>
               ) : playerStats && playerStats.length > 0 ? (

@@ -151,7 +151,7 @@ const championNameKo: Record<string, string> = {
   Vladimir: "블라디미르",
   Volibear: "볼리베어",
   Warwick: "워윅",
-  Wukong: "오공",
+  MonkeyKing: "오공",
   Xayah: "자야",
   Xerath: "제라스",
   XinZhao: "신 짜오",
@@ -165,7 +165,10 @@ const championNameKo: Record<string, string> = {
   Ziggs: "직스",
   Zilean: "질리언",
   Zoe: "조이",
-  Zyra: "자이라"
+  Zyra: "자이라",
+  Aurora: "오로라",
+  Ambessa: "암베사",
+  Akshan: "아크샨",
 };
 
 export default championNameKo;
