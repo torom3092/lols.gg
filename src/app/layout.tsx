@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* 🔹 상단 로고 영역 */}
         <header>
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 w-fit">
-            <Image src="/logo.png" className="invert brightness-200" alt="로고" width={36} height={36} />
+            <Image src="/logo.png" className="invert brightness-200" alt="로고" width={36} height={36} unoptimized />
             <span className="text-2xl font-bold">롤스기릿</span>
           </Link>
         </header>
