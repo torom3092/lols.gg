@@ -104,9 +104,19 @@ export async function GET(req: NextRequest, context: any) {
     return { position: pos, wins: stat.wins, losses: stat.losses, winrate };
   });
 
+  const mostFrequentTeammates = Object.entries(synergyMap)
+    .map(([alias, stat]) => ({
+      alias,
+      total: stat.total,
+      winrate: Math.round((stat.wins / stat.total) * 100),
+    }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 5);
+
   return NextResponse.json({
     laneWinrates,
     bestTeammates,
     hardestOpponents,
+    mostFrequentTeammates,
   });
 }

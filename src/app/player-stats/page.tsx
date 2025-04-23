@@ -183,8 +183,11 @@ export default function PlayerStatsPage() {
                           <ul className="space-y-1 text-sm">
                             {detailStats.bestTeammates.map((tm: any) => (
                               <li key={`${tm.alias}-${tm.winrate}`}>
-                                {tm.alias} - <span className="text-blue-400">{tm.winrate}%</span>{" "}
-                                <span>({tm.total}판)</span>
+                                {tm.alias} -{" "}
+                                <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>
+                                  {tm.winrate}%
+                                </span>{" "}
+                                <span className="text-gray-400">({tm.total}판)</span>
                               </li>
                             ))}
                           </ul>
@@ -194,19 +197,42 @@ export default function PlayerStatsPage() {
                       </div>
 
                       {/* 가장 어려운 상대 */}
-                      <div>
+                      <div className="mb-4">
                         <p className="font-semibold text-lg mb-2">가장 어려운 상대</p>
                         {detailStats.hardestOpponents.length > 0 ? (
                           <ul className="space-y-1 text-sm">
                             {detailStats.hardestOpponents.map((op: any) => (
                               <li key={`${op.alias}-${op.winrate}`}>
-                                {op.alias} - <span className="text-red-400">{op.winrate}%</span>{" "}
-                                <span>({op.total}판)</span>
+                                {op.alias} -{" "}
+                                <span className={op.winrate >= 50 ? "text-blue-400" : "text-red-400"}>
+                                  {op.winrate}%
+                                </span>{" "}
+                                <span className="text-gray-400">({op.total}판)</span>
                               </li>
                             ))}
                           </ul>
                         ) : (
                           <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
+                        )}
+                      </div>
+
+                      {/* 함께 가장 많이한 플레이어 */}
+                      <div>
+                        <p className="font-semibold text-lg mb-2">함께 가장 많이한 플레이어</p>
+                        {detailStats.mostFrequentTeammates.length > 0 ? (
+                          <ul className="space-y-1 text-sm">
+                            {detailStats.mostFrequentTeammates.map((tm: any) => (
+                              <li key={`${tm.alias}-${tm.total}`}>
+                                {tm.alias} -{" "}
+                                <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>
+                                  {tm.winrate}%
+                                </span>{" "}
+                                <span className="text-gray-400">({tm.total}판)</span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-gray-400 text-sm">조건에 맞는 데이터가 없습니다.</p>
                         )}
                       </div>
                     </>
