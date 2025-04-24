@@ -11,7 +11,7 @@ export default function HistoryPage() {
   const [tab, setTab] = useState<"history" | "highlight" | "rollscup">("history");
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen text-white p-6">
       <h1 className="text-2xl font-bold mb-6 text-center">📚 기록실</h1>
 
       <div className="flex space-x-4 mb-6 justify-center border-b border-white/20 pb-2">

@@ -9,7 +9,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<"upload" | "player" | "highlight">("upload");
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen text-white p-6">
       <div className="flex space-x-4 mb-6 border-b border-gray-700 pb-2">
         <button
           onClick={() => setTab("upload")}

@@ -4,7 +4,7 @@ import React from "react";
 
 export default function AdminLoginPage() {
   return (
-    <div className="flex items-center justify-center h-screen bg-black">
+    <div className="flex items-center justify-center h-screen">
       <div className="w-full max-w-sm bg-[#1f1f1f] p-6 rounded-lg shadow-lg">
         <h1 className="text-2xl font-bold mb-4 text-white text-center">관리자 로그인</h1>
         <form method="POST" action="/admin/login/submit">

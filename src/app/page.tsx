@@ -44,7 +44,7 @@ export default function DashboardPage() {
     {
       title: " 랭킹시스템",
       description: "예정",
-      href: "/",
+      href: "/ranking",
     },
     {
       title: "팀 조합 시뮬레이터",
