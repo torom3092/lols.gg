@@ -43,7 +43,7 @@ export default function DashboardPage() {
     },
     {
       title: " 랭킹시스템",
-      description: "예정",
+      description: "라인별 승률,시너지,골드,데미지 랭킹",
       href: "/ranking",
     },
     {
