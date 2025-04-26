@@ -60,12 +60,14 @@ export default function RankingPage() {
       </div>
 
       {/* 필터 컨트롤 */}
-      <FilterControls
-        selectedPosition={position}
-        onPositionChange={setPosition}
-        selectedMonth={month}
-        onMonthChange={setMonth}
-      />
+      {selectedTab !== "총 어시스트" && selectedTab !== "총 어시스트" && selectedTab !== "총 킬" && (
+        <FilterControls
+          selectedPosition={position}
+          onPositionChange={setPosition}
+          selectedMonth={month}
+          onMonthChange={setMonth}
+        />
+      )}
 
       {/* 조건부 섹션 렌더링 */}
       <div className="mt-6">
@@ -75,7 +77,7 @@ export default function RankingPage() {
         {selectedTab === "딜량" && <DamageRanking position={position} month={month} />}
         {selectedTab === "골드" && <GoldRanking position={position} month={month} />}
         {selectedTab === "총 어시스트" && <TotalAssistsRanking />}
-        {selectedTab === "총 게임수" && <TotalGamesRanking />}
+        {selectedTab === "총 어시스트" && <TotalGamesRanking />}
         {selectedTab === "총 킬" && <TotalKillsRanking />}
       </div>
     </div>
