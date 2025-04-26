@@ -6,8 +6,12 @@ import WinrateRanking from "./components/WinrateRankingSection";
 import SynergyRanking from "./components/SynergyRankingSection";
 import DamageRanking from "./components/DamageRankingSection";
 import GoldRanking from "./components/GoldRankingSection";
+import DamagePerDeathRanking from "./components/DamagePerDeathRankingSection";
+import TotalAssistsRanking from "./components/TotalAssistsRankingSection";
+import TotalGamesRanking from "./components/TotalGamesRankingSection";
+import TotalKillsRanking from "./components/TotalKillsRankingSection";
 
-const TABS = ["승률", "딜량", "골드", "시너지"];
+const TABS = ["승률", "딜량", "골드", "시너지", "데스당 딜량", "총 킬", "총 어시스트", "총 게임수"];
 
 interface SynergyRankingEntry {
   player1: string;
@@ -66,10 +70,13 @@ export default function RankingPage() {
       {/* 조건부 섹션 렌더링 */}
       <div className="mt-6">
         {selectedTab === "승률" && <WinrateRanking position={position} month={month} />}
-
+        {selectedTab === "데스당 딜량" && <DamagePerDeathRanking position={position} month={month} />}
         {selectedTab === "시너지" && <SynergyRanking synergyRanking={synergyData} />}
         {selectedTab === "딜량" && <DamageRanking position={position} month={month} />}
         {selectedTab === "골드" && <GoldRanking position={position} month={month} />}
+        {selectedTab === "총 어시스트" && <TotalAssistsRanking />}
+        {selectedTab === "총 게임수" && <TotalGamesRanking />}
+        {selectedTab === "총 킬" && <TotalKillsRanking />}
       </div>
     </div>
   );
