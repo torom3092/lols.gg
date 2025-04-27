@@ -3,6 +3,7 @@ import { connectToDB } from "@/lib/mongodb";
 
 export async function GET(req: NextRequest) {
   const rawMonth = req.nextUrl.searchParams.get("month");
+  const rawYear = req.nextUrl.searchParams.get("year");
 
   const POSITION_MAP: Record<string, string> = {
     전체라인: "ALL",
@@ -35,8 +36,9 @@ export async function GET(req: NextRequest) {
 
   for (const match of matches) {
     const date = new Date(match.gameDate);
-    if (date.getFullYear() !== 2025) continue;
-
+    if (rawYear && rawYear !== "전체" && date.getFullYear() !== Number(rawYear)) {
+      continue;
+    }
     if (rawMonth && rawMonth !== "전체" && date.getMonth() + 1 !== Number(rawMonth)) {
       continue;
     }

@@ -12,19 +12,20 @@ interface DamagePerDeathEntry {
 interface Props {
   position: string;
   month: string;
+  year: string;
 }
 
-export default function DamagePerDeathRankingSection({ position, month }: Props) {
+export default function DamagePerDeathRankingSection({ position, month, year }: Props) {
   const [data, setData] = useState<DamagePerDeathEntry[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/stats/ranking/damagePerDeath?position=${position}&month=${month}`);
+      const res = await fetch(`/api/stats/ranking/damagePerDeath?position=${position}&month=${month}&year=${year}`);
       const json = await res.json();
       setData(json);
     };
     fetchData();
-  }, [position, month]);
+  }, [position, month, year]);
 
   return (
     <section className="mt-10">

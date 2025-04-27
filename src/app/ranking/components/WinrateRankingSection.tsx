@@ -12,19 +12,20 @@ interface WinrateRankingEntry {
 interface Props {
   position: string;
   month: string;
+  year: string;
 }
 
-export default function WinrateRankingSection({ position, month }: Props) {
+export default function WinrateRankingSection({ position, month, year }: Props) {
   const [data, setData] = useState<WinrateRankingEntry[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/stats/ranking/winrate?position=${position}&month=${month}`);
+      const res = await fetch(`/api/stats/ranking/winrate?position=${position}&month=${month}&year=${year}`);
       const json = await res.json();
       setData(json.slice(0, 5));
     };
     fetchData();
-  }, [position, month]);
+  }, [position, month, year]);
 
   return (
     <section className="mt-10">

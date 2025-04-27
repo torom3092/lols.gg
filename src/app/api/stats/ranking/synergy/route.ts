@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const raw = req.nextUrl.searchParams.get("position") || "전체라인";
   const rawMonth = req.nextUrl.searchParams.get("month");
   const positionFilter = POSITION_MAP[raw] || "ALL";
+  const rawYear = req.nextUrl.searchParams.get("year");
 
   const client = await connectToDB();
   const db = client.db("내전GG");
@@ -34,7 +35,9 @@ export async function GET(req: NextRequest) {
 
   for (const match of matches) {
     const date = new Date(match.gameDate);
-    if (date.getFullYear() !== 2025) continue;
+    if (rawYear && rawYear !== "전체" && date.getFullYear() !== Number(rawYear)) {
+      continue;
+    }
     if (rawMonth && rawMonth !== "전체" && date.getMonth() + 1 !== Number(rawMonth)) continue;
 
     const participants = match.participants || [];
