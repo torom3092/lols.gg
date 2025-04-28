@@ -40,8 +40,8 @@ export default function ComparePage() {
       const params = new URLSearchParams();
       params.append("playerA", playerA);
       params.append("playerB", playerB);
-      if (year && year !== "all") params.append("year", year);
-      if (month && month !== "all") params.append("month", month);
+      params.append("year", year);
+      params.append("month", month);
 
       const res = await fetch(`/api/compare?${params.toString()}`);
       if (!res.ok) {
@@ -298,7 +298,8 @@ export default function ComparePage() {
                       </div>
                       <div className="flex flex-col items-end">
                         <span className="text-base">
-                        {championNameKo[match.championA]} vs {championNameKo[match.championB]}
+                          {championNameKo[match.championA]} vs{" "}
+                          {championNameKo[match.championB]}
                         </span>
                         <span
                           className={
