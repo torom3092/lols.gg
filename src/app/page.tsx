@@ -53,8 +53,8 @@ export default function DashboardPage() {
     },
     {
       title: "상대 전적 비교",
-      description: "예정",
-      href: "/",
+      description: "플레이어 전적 비교",
+      href: "/compare",
     },
   ];
 
