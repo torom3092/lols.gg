@@ -21,6 +21,43 @@ export default function ComparePage() {
     UTILITY: "서포터",
   };
 
+
+  async function handleCompare() {
+    if (!playerA || !playerB) return;
+    if (playerA === playerB) {
+      alert("같은 플레이어끼리는 비교할 수 없습니다.");
+      return;
+    }
+  
+    setLoading(true);
+  
+    try {
+      const params = new URLSearchParams();
+      params.append("playerA", playerA);
+      params.append("playerB", playerB);
+      if (year && year !== "all") params.append("year", year);
+      if (month && month !== "all") params.append("month", month);
+  
+      const res = await fetch(`/api/compare?${params.toString()}`);
+      if (!res.ok) {
+        const text = await res.text(); // 실패 시 json()이 아니라 text()로 먼저 읽어야 에러 안남
+        console.error("서버 에러:", text);
+        alert("서버 오류 발생");
+        setLoading(false);
+        return;
+      }
+  
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      console.error("요청 실패:", error);
+      alert("네트워크 오류");
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+
   useEffect(() => {
     async function fetchPlayers() {
       const res = await fetch("/api/players");
@@ -31,27 +68,7 @@ export default function ComparePage() {
     fetchPlayers();
   }, []);
 
-  async function handleCompare() {
-    if (!playerA || !playerB) return;
-    if (playerA === playerB) {
-      alert("같은 플레이어끼리는 비교할 수 없습니다.");
-      return;
-    }
 
-    setLoading(true);
-    const res = await fetch(`/api/compare?playerA=${playerA}&playerB=${playerB}&year=${year}month=${month}`);
-
-    if (!res.ok) {
-      const errorData = await res.json();
-      alert(errorData.error || "서버 오류");
-      setLoading(false);
-      return;
-    }
-
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-  }
 
   return (
     <div className="from-gray-900 to-black min-h-screen text-white">
