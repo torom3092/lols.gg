@@ -48,8 +48,8 @@ export default function DashboardPage() {
     },
     {
       title: "팀 조합 시뮬레이터",
-      description: "예정",
-      href: "/",
+      description: "팀,플레이어,챔피언 조합 시뮬레이션",
+      href: "/simulator",
     },
     {
       title: "상대 전적 비교",
