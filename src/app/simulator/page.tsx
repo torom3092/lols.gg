@@ -3,13 +3,29 @@
 import { useEffect, useState } from "react";
 import ChampionSimulatorPage from "./components/ChampionSimulatorPage";
 import PlayerCombinationAnalysis from "./components/PlayerCombinationAnalysis";
+import ChampionGraph from "./components/ChampionGraph";
+import PlayerGraph from "./components/PlayerGraph.tsx";
 
 export default function SimulatorPage() {
-  const [selectedTab, setSelectedTab] = useState<"team" | "champion" | "player">("team");
+  const [selectedTab, setSelectedTab] = useState<"team" | "champion" | "player" | "playerGraph" | "ChampionGraph">(
+    "team"
+  );
   const [players, setPlayers] = useState<string[]>([]);
   const [blueTeam, setBlueTeam] = useState<string[]>([]);
   const [redTeam, setRedTeam] = useState<string[]>([]);
   const [matches, setMatches] = useState<any[]>([]);
+
+  const [result, setResult] = useState<any | null>(null);
+
+  useEffect(() => {
+    // 기본 2명 지정해도 되고 빈 값으로 처리 가능
+    const defaultPlayers = ["", ""];
+    const params = new URLSearchParams({ players: defaultPlayers.join(",") });
+
+    fetch(`/api/analysis/players?${params}`)
+      .then((res) => res.json())
+      .then(setResult);
+  }, []);
 
   useEffect(() => {
     async function fetchPlayers() {
@@ -76,6 +92,8 @@ export default function SimulatorPage() {
             { key: "team", label: "팀 조합 시뮬레이터" },
             { key: "champion", label: "챔피언 조합 시뮬레이터" },
             { key: "player", label: "플레이어 조합 분석" },
+            { key: "ChampionGraph", label: "챔피언 조합표" },
+            { key: "playerGraph", label: "플레이어 조합표" },
           ].map(({ key, label }) => (
             <button
               key={key}
@@ -154,6 +172,10 @@ export default function SimulatorPage() {
         {selectedTab === "champion" && <ChampionSimulatorPage />}
 
         {selectedTab === "player" && <PlayerCombinationAnalysis />}
+
+        {selectedTab === "ChampionGraph" && <ChampionGraph />}
+
+        {selectedTab === "playerGraph" && <PlayerGraph />}
       </div>
     </div>
   );
