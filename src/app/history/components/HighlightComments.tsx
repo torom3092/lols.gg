@@ -16,14 +16,24 @@ export default function HighlightComments({ videoId }: { videoId: string }) {
   const [posting, setPosting] = useState(false);
 
   const fetchComments = async () => {
-    setLoading(true);
-    const res = await fetch(`/api/highlights/${videoId}/comments`);
-    const data = await res.json();
-    setComments(data);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/highlights/${videoId}/comments`);
+      if (!res.ok) {
+        console.error("API Error", await res.text());
+        return;
+      }
+      const data = await res.json();
+      setComments(data);
+    } catch (err) {
+      console.error("댓글 fetch 실패:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
+    if (!videoId) return; // ✅ videoId가 없으면 호출하지 않음
     fetchComments();
   }, [videoId]);
 
