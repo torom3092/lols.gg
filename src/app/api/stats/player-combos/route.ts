@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
   const combos = Object.values(comboStats)
     .filter((combo) => {
       const total = combo.wins + combo.losses;
-      return size === 2 ? total >= 7 : total >= 5;
+      return size === 2 ? total >= 7 : total >= 7;
     })
     .map((combo) => {
       const total = combo.wins + combo.losses;
