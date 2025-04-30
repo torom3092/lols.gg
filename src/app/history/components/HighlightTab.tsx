@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import HighlightComments from "./HighlightComments"; // ✅ 추가
 
 interface HighlightVideo {
   _id: string;
@@ -35,15 +36,17 @@ export default function HighlightTab() {
         <p className="text-center text-gray-400">등록된 영상이 없습니다.</p>
       ) : (
         paginated.map((v) => (
-          <div key={v._id} className="mb-8">
-            <h3 className="mb-2 text-lg font-semibold">{v.title}</h3>
-            <div className="w-full aspect-video">
+          <div key={v._id} className="mb-10 bg-neutral-900 p-4 rounded-xl shadow">
+            <h3 className="mb-2 text-lg font-semibold text-white">{v.title}</h3>
+            <div className="w-full aspect-video mb-4">
               <iframe
                 src={`https://www.youtube.com/embed/${v.youtubeId}`}
                 className="w-full h-full rounded-xl"
                 allowFullScreen
               />
             </div>
+            {/* ✅ 댓글 컴포넌트 추가 */}
+            <HighlightComments videoId={v.youtubeId} />
           </div>
         ))
       )}
@@ -53,17 +56,17 @@ export default function HighlightTab() {
           <button
             disabled={page <= 1}
             onClick={() => setPage(page - 1)}
-            className="px-3 py-1 bg-gray-700 rounded disabled:opacity-50"
+            className="px-3 py-1 bg-gray-700 rounded disabled:opacity-50 text-white"
           >
             이전
           </button>
-          <span>
+          <span className="text-white">
             {page} / {totalPages}
           </span>
           <button
             disabled={page >= totalPages}
             onClick={() => setPage(page + 1)}
-            className="px-3 py-1 bg-gray-700 rounded disabled:opacity-50"
+            className="px-3 py-1 bg-gray-700 rounded disabled:opacity-50 text-white"
           >
             다음
           </button>

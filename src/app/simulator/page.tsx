@@ -29,9 +29,13 @@ export default function SimulatorPage() {
 
   useEffect(() => {
     async function fetchPlayers() {
-      const res = await fetch("/api/players");
+      const res = await fetch("/api/simulator/players");
       const data = await res.json();
-      const aliasList = data.filter((p: any) => p.alias && p.alias !== "guest").map((p: any) => p.alias);
+
+      const aliasList = data
+        .filter((p: any) => p.alias && p.alias !== "guest" && p.games >= 15)
+        .map((p: any) => p.alias);
+
       setPlayers(aliasList);
     }
     async function fetchMatches() {
@@ -132,6 +136,15 @@ export default function SimulatorPage() {
 
               {/* 선택된 블루팀/레드팀 */}
               <div className="bg-neutral-800 p-6 rounded-2xl shadow-lg flex flex-col gap-8">
+                <button
+                  onClick={() => {
+                    setBlueTeam([]);
+                    setRedTeam([]);
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-semibold mt-4 block mx-auto"
+                >
+                  초기화
+                </button>
                 <div>
                   <h3 className="text-2xl font-bold mb-3 text-blue-400 text-center">블루팀</h3>
                   <div className="flex flex-wrap gap-2 justify-center">
@@ -156,9 +169,11 @@ export default function SimulatorPage() {
             </div>
 
             {/* 팀 분석 결과 */}
+
             {blueTeam.length === 5 && redTeam.length === 5 && (
               <div className="p-8 bg-gradient-to-b from-neutral-800 to-neutral-900 rounded-2xl shadow-2xl">
                 <h2 className="text-3xl font-extrabold mb-6 text-center">팀 분석 결과</h2>
+
                 <div className="flex justify-center items-center gap-8 text-2xl font-bold">
                   <div className="text-red-400">레드팀 승률 {redFinal}%</div>
                   <div className="text-white">vs</div>
