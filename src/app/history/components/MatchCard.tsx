@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { normalizeChampionName } from "@/lib/getChampionImgUrl";
 
 const CHAMP_IMG_BASE = "https://ddragon.leagueoflegends.com/cdn/14.6.1/img/champion";
 
@@ -16,25 +16,28 @@ export default function MatchCard({ match }: { match: any }) {
     minute: "2-digit",
   });
 
-  // 승리팀 판별 (red 중 1명이라도 win이 "Win"이면 red 승)
   const redWon = redTeam.some((p: any) => p.win === "Win");
   const blueWon = blueTeam.some((p: any) => p.win === "Win");
 
-  // 데미지 최고 유저 찾기
   const allPlayers = [...blueTeam, ...redTeam];
   const topDamage = Math.max(...allPlayers.map((p) => Number(p.totalDamageDealtToChampions)));
 
   const renderPlayer = (player: any) => {
     const isTopDamage = Number(player.totalDamageDealtToChampions) === topDamage;
+    const champ = normalizeChampionName(player.championName);
+    const imgUrl = `${CHAMP_IMG_BASE}/${champ}.png`;
 
     return (
       <div key={player.name} className="flex items-center gap-3">
-        <Image
-          src={`${CHAMP_IMG_BASE}/${player.championName}.png`}
+        <img
+          src={imgUrl}
           alt={player.championName}
           width={32}
           height={32}
           className="rounded"
+          onError={(e) => {
+            e.currentTarget.src = "/fallback-champion.png";
+          }}
         />
         <div>
           <div className="text-white text-sm font-semibold">{player.name}</div>

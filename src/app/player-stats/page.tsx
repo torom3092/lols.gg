@@ -61,7 +61,7 @@ export default function PlayerStatsPage() {
 
   useEffect(() => {
     if (!selectedPlayer || !showDetails) return;
-    const pos = POSITION_EN_MAP[detailPosition]; // 한글 → 영어 변환
+    const pos = POSITION_EN_MAP[detailPosition];
     const query = pos !== "ALL" ? `?position=${pos}` : "";
     fetch(`/api/stats/players/${selectedPlayer}/detail${query}`)
       .then((res) => res.json())
@@ -77,7 +77,6 @@ export default function PlayerStatsPage() {
     <main className="p-6 text-white max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6 text-center">🧙‍♂️ 플레이어 통계</h1>
       <div className="flex rounded-xl overflow-hidden border border-white/10 bg-white/5">
-        {/* 왼쪽 패널 */}
         <div className="w-64 border-r border-white/10 p-4 space-y-4 bg-black/30">
           <div className="flex flex-wrap gap-1">
             {ROLES.map((role) => (
@@ -125,7 +124,6 @@ export default function PlayerStatsPage() {
           </div>
         </div>
 
-        {/* 오른쪽 패널 */}
         <div className="flex-1 p-6">
           {selectedPlayer ? (
             <>
@@ -142,102 +140,90 @@ export default function PlayerStatsPage() {
               </div>
 
               {showDetails ? (
-                <>
-                  {!detailStats ? (
-                    <p className="text-gray-400">불러오는 중...</p>
-                  ) : (
-                    <>
-                      <div className="mb-4">
-                        <p className="font-semibold text-lg mb-2">라인별 승률</p>
-                        <ul className="space-y-1 text-sm text-gray-300">
-                          {detailStats.laneWinrates.map((lane: any) => (
-                            <li key={lane.position}>
-                              {POSITION_KR_MAP[lane.position] || lane.position} - {lane.winrate}% (
-                              <span className="text-blue-400">{lane.wins}</span>/
-                              <span className="text-red-400">{lane.losses}</span>)
+                !detailStats ? (
+                  <p className="text-gray-400">불러오는 중...</p>
+                ) : (
+                  <>
+                    <div className="mb-4">
+                      <p className="font-semibold text-lg mb-2">라인별 승률</p>
+                      <ul className="space-y-1 text-sm text-gray-300">
+                        {detailStats.laneWinrates.map((lane: any) => (
+                          <li key={lane.position}>
+                            {POSITION_KR_MAP[lane.position] || lane.position} - {lane.winrate}% (
+                            <span className="text-blue-400">{lane.wins}</span>/
+                            <span className="text-red-400">{lane.losses}</span>)
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mb-4">
+                      <label className="block mb-1 font-medium">본인라인:</label>
+                      <select
+                        value={detailPosition}
+                        onChange={(e) => setDetailPosition(e.target.value)}
+                        className="p-1 rounded bg-black/30 border border-white/20 text-sm"
+                      >
+                        {POSITIONS.map((pos) => (
+                          <option key={pos} value={pos}>
+                            {pos}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="mb-4">
+                      <p className="font-semibold text-lg mb-2">가장 시너지 좋은 팀원</p>
+                      {detailStats.bestTeammates.length > 0 ? (
+                        <ul className="space-y-1 text-sm">
+                          {detailStats.bestTeammates.map((tm: any) => (
+                            <li key={`${tm.alias}-${tm.winrate}`}>
+                              {tm.alias} -{" "}
+                              <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>{tm.winrate}%</span>{" "}
+                              <span className="text-gray-400">({tm.total}판)</span>
                             </li>
                           ))}
                         </ul>
-                      </div>
+                      ) : (
+                        <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
+                      )}
+                    </div>
 
-                      {/* 드롭다운을 여기로 이동 */}
-                      <div className="mb-4">
-                        <label className="block mb-1 font-medium">본인라인:</label>
-                        <select
-                          value={detailPosition}
-                          onChange={(e) => setDetailPosition(e.target.value)}
-                          className="p-1 rounded bg-black/30 border border-white/20 text-sm"
-                        >
-                          {POSITIONS.map((pos) => (
-                            <option key={pos} value={pos}>
-                              {pos}
-                            </option>
+                    <div className="mb-4">
+                      <p className="font-semibold text-lg mb-2">가장 어려운 상대</p>
+                      {detailStats.hardestOpponents.length > 0 ? (
+                        <ul className="space-y-1 text-sm">
+                          {detailStats.hardestOpponents.map((op: any) => (
+                            <li key={`${op.alias}-${op.winrate}`}>
+                              {op.alias} -{" "}
+                              <span className={op.winrate >= 50 ? "text-blue-400" : "text-red-400"}>{op.winrate}%</span>{" "}
+                              <span className="text-gray-400">({op.total}판)</span>
+                            </li>
                           ))}
-                        </select>
-                      </div>
+                        </ul>
+                      ) : (
+                        <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
+                      )}
+                    </div>
 
-                      {/* 가장 시너지 좋은 팀원 */}
-                      <div className="mb-4">
-                        <p className="font-semibold text-lg mb-2">가장 시너지 좋은 팀원</p>
-                        {detailStats.bestTeammates.length > 0 ? (
-                          <ul className="space-y-1 text-sm">
-                            {detailStats.bestTeammates.map((tm: any) => (
-                              <li key={`${tm.alias}-${tm.winrate}`}>
-                                {tm.alias} -{" "}
-                                <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>
-                                  {tm.winrate}%
-                                </span>{" "}
-                                <span className="text-gray-400">({tm.total}판)</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
-                        )}
-                      </div>
-
-                      {/* 가장 어려운 상대 */}
-                      <div className="mb-4">
-                        <p className="font-semibold text-lg mb-2">가장 어려운 상대</p>
-                        {detailStats.hardestOpponents.length > 0 ? (
-                          <ul className="space-y-1 text-sm">
-                            {detailStats.hardestOpponents.map((op: any) => (
-                              <li key={`${op.alias}-${op.winrate}`}>
-                                {op.alias} -{" "}
-                                <span className={op.winrate >= 50 ? "text-blue-400" : "text-red-400"}>
-                                  {op.winrate}%
-                                </span>{" "}
-                                <span className="text-gray-400">({op.total}판)</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
-                        )}
-                      </div>
-
-                      {/* 함께 가장 많이한 플레이어 */}
-                      <div>
-                        <p className="font-semibold text-lg mb-2">함께 가장 많이한 플레이어</p>
-                        {detailStats.mostFrequentTeammates.length > 0 ? (
-                          <ul className="space-y-1 text-sm">
-                            {detailStats.mostFrequentTeammates.map((tm: any) => (
-                              <li key={`${tm.alias}-${tm.total}`}>
-                                {tm.alias} -{" "}
-                                <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>
-                                  {tm.winrate}%
-                                </span>{" "}
-                                <span className="text-gray-400">({tm.total}판)</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-gray-400 text-sm">조건에 맞는 데이터가 없습니다.</p>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </>
+                    <div>
+                      <p className="font-semibold text-lg mb-2">함께 가장 많이한 플레이어</p>
+                      {detailStats.mostFrequentTeammates.length > 0 ? (
+                        <ul className="space-y-1 text-sm">
+                          {detailStats.mostFrequentTeammates.map((tm: any) => (
+                            <li key={`${tm.alias}-${tm.total}`}>
+                              {tm.alias} -{" "}
+                              <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>{tm.winrate}%</span>{" "}
+                              <span className="text-gray-400">({tm.total}판)</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-gray-400 text-sm">조건에 맞는 데이터가 없습니다.</p>
+                      )}
+                    </div>
+                  </>
+                )
               ) : loadingStats ? (
                 <p className="text-gray-400">로딩 중...</p>
               ) : champStats.length === 0 ? (
