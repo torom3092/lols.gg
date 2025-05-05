@@ -13,12 +13,14 @@ interface WinrateEntry {
 
 const currentDate = new Date();
 const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0"); // "05"
+const cleanMonth = String(Number(currentMonth));
+
 
 export default function StatsPage() {
   const [yearData, setYearData] = useState<WinrateEntry[]>([]);
   const [monthData, setMonthData] = useState<WinrateEntry[]>([]);
   const [selectedYear, setSelectedYear] = useState("2025");
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState(cleanMonth);
 
   const [yearSortField, setYearSortField] = useState<"games" | "winrate">(
     "games"
