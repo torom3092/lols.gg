@@ -11,17 +11,24 @@ interface WinrateEntry {
   winrate: number;
 }
 
+const currentDate = new Date();
+const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0"); // "05"
+
 export default function StatsPage() {
   const [yearData, setYearData] = useState<WinrateEntry[]>([]);
   const [monthData, setMonthData] = useState<WinrateEntry[]>([]);
   const [selectedYear, setSelectedYear] = useState("2025");
-  const [selectedMonth, setSelectedMonth] = useState("4");
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
-  const [yearSortField, setYearSortField] = useState<"games" | "winrate">("games");
+  const [yearSortField, setYearSortField] = useState<"games" | "winrate">(
+    "games"
+  );
   const [yearSortOrder, setYearSortOrder] = useState<"asc" | "desc">("desc");
   const [yearMinGames, setYearMinGames] = useState(0);
 
-  const [monthSortField, setMonthSortField] = useState<"games" | "winrate">("games");
+  const [monthSortField, setMonthSortField] = useState<"games" | "winrate">(
+    "games"
+  );
   const [monthSortOrder, setMonthSortOrder] = useState<"asc" | "desc">("desc");
   const [monthMinGames, setMonthMinGames] = useState(0);
 
@@ -66,7 +73,9 @@ export default function StatsPage() {
                 key={year}
                 onClick={() => setSelectedYear(year === "전체" ? "" : year)}
                 className={`px-3 py-1 rounded ${
-                  selectedYear === year ? "bg-blue-600" : "bg-white/10 hover:bg-white/20"
+                  selectedYear === year
+                    ? "bg-blue-600"
+                    : "bg-white/10 hover:bg-white/20"
                 }`}
               >
                 {year}
@@ -99,7 +108,9 @@ export default function StatsPage() {
                   key={m}
                   onClick={() => setSelectedMonth(m)}
                   className={`px-3 py-1 rounded text-sm ${
-                    selectedMonth === m ? "bg-green-600" : "bg-white/10 hover:bg-white/20"
+                    selectedMonth === m
+                      ? "bg-green-600"
+                      : "bg-white/10 hover:bg-white/20"
                   }`}
                 >
                   {m}
@@ -154,7 +165,9 @@ function ControlBar({
           }
         }}
         className={`px-3 py-1 rounded border ${
-          sortField === "games" ? "bg-blue-600 text-white" : "bg-white/10 text-gray-300"
+          sortField === "games"
+            ? "bg-blue-600 text-white"
+            : "bg-white/10 text-gray-300"
         }`}
       >
         게임수 {sortField === "games" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
@@ -170,7 +183,9 @@ function ControlBar({
           }
         }}
         className={`px-3 py-1 rounded border ${
-          sortField === "winrate" ? "bg-green-600 text-white" : "bg-white/10 text-gray-300"
+          sortField === "winrate"
+            ? "bg-green-600 text-white"
+            : "bg-white/10 text-gray-300"
         }`}
       >
         승률 {sortField === "winrate" ? (sortOrder === "asc" ? "▲" : "▼") : ""}
@@ -235,7 +250,7 @@ function WinrateTable({
               >
                 <td className="px-4 py-2">{displayName}</td>
                 <td className="px-4 py-2 text-center">
-                  <span className="text-green-400">{entry.wins}</span> / {" "}
+                  <span className="text-green-400">{entry.wins}</span> /{" "}
                   <span className="text-red-400">{entry.losses}</span>
                 </td>
                 <td className="px-4 py-2 text-center">{entry.winrate}%</td>
