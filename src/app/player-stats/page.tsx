@@ -49,6 +49,7 @@ function ImageWithFallback({ src, alt }: { src: string; alt: string }) {
       onError={(e) => {
         e.currentTarget.src = "/fallback-champion.png";
       }}
+      unoptimized
     />
   );
 }
