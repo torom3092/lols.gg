@@ -33,6 +33,20 @@ const POSITION_KR_MAP: Record<string, string> = {
   UTILITY: "서폿",
 };
 
+function ImageWithFallback({ src, alt }: { src: string; alt: string }) {
+  const [imgSrc, setImgSrc] = useState(src);
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      width={24}
+      height={24}
+      className="rounded-full"
+      onError={() => setImgSrc("/fallback-champion.png")}
+    />
+  );
+}
+
 export default function PlayerStatsPage() {
   const [players, setPlayers] = useState<any[]>([]);
   const [selectedRole, setSelectedRole] = useState("전체");
@@ -252,13 +266,7 @@ export default function PlayerStatsPage() {
                           <td className="py-2 px-2">
                             <div className="flex items-center gap-2">
                               {c.championKR !== "모든 챔피언" && (
-                                <Image
-                                  src={c.imageUrl}
-                                  alt={c.championKR}
-                                  width={24}
-                                  height={24}
-                                  className="rounded-full"
-                                />
+                                <ImageWithFallback src={c.imageUrl} alt={c.championKR} />
                               )}
                               <span>{c.championKR}</span>
                             </div>
