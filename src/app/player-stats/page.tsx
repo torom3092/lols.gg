@@ -33,16 +33,22 @@ const POSITION_KR_MAP: Record<string, string> = {
   UTILITY: "서폿",
 };
 
+function getSafeImageUrl(url: string) {
+  return url.replace(/^http:\/\//, "https://");
+}
+
 function ImageWithFallback({ src, alt }: { src: string; alt: string }) {
   const [imgSrc, setImgSrc] = useState(src);
   return (
     <Image
-      src={imgSrc}
-      alt={alt}
-      width={24}
-      height={24}
-      className="rounded-full"
-      onError={() => setImgSrc("/fallback-champion.png")}
+      src={getSafeImageUrl(imgSrc)}
+      alt="champion"
+      width={32}
+      height={32}
+      className="rounded"
+      onError={(e) => {
+        e.currentTarget.src = "/fallback-champion.png";
+      }}
     />
   );
 }
@@ -83,7 +89,9 @@ export default function PlayerStatsPage() {
   }, [selectedPlayer, showDetails, detailPosition]);
 
   const filteredPlayers = players
-    .filter((p) => selectedRole === "전체" || p.position === ROLE_MAP[selectedRole])
+    .filter(
+      (p) => selectedRole === "전체" || p.position === ROLE_MAP[selectedRole]
+    )
     .filter((p) => p.games >= minGames)
     .sort((a, b) => b.winrate - a.winrate);
 
@@ -98,7 +106,9 @@ export default function PlayerStatsPage() {
                 key={role}
                 onClick={() => setSelectedRole(role)}
                 className={`px-3 py-1 rounded text-sm ${
-                  selectedRole === role ? "bg-blue-600" : "bg-white/10 hover:bg-white/20"
+                  selectedRole === role
+                    ? "bg-blue-600"
+                    : "bg-white/10 hover:bg-white/20"
                 }`}
               >
                 {role}
@@ -125,12 +135,15 @@ export default function PlayerStatsPage() {
                   setShowDetails(false);
                 }}
                 className={`flex justify-between px-3 py-2 rounded cursor-pointer ${
-                  selectedPlayer === player.alias ? "bg-blue-700" : "hover:bg-white/10"
+                  selectedPlayer === player.alias
+                    ? "bg-blue-700"
+                    : "hover:bg-white/10"
                 }`}
               >
                 <span>{player.alias}</span>
                 <span className="text-sm text-gray-200">
-                  {player.winrate}% (<span className="text-blue-400">{player.wins}</span>/
+                  {player.winrate}% (
+                  <span className="text-blue-400">{player.wins}</span>/
                   <span className="text-red-400">{player.losses}</span>)
                 </span>
               </div>
@@ -143,7 +156,8 @@ export default function PlayerStatsPage() {
             <>
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">
-                  {selectedPlayer}의 {showDetails ? "상세 통계" : "챔피언별 통계"}
+                  {selectedPlayer}의{" "}
+                  {showDetails ? "상세 통계" : "챔피언별 통계"}
                 </h2>
                 <button
                   onClick={() => setShowDetails(!showDetails)}
@@ -163,7 +177,8 @@ export default function PlayerStatsPage() {
                       <ul className="space-y-1 text-sm text-gray-300">
                         {detailStats.laneWinrates.map((lane: any) => (
                           <li key={lane.position}>
-                            {POSITION_KR_MAP[lane.position] || lane.position} - {lane.winrate}% (
+                            {POSITION_KR_MAP[lane.position] || lane.position} -{" "}
+                            {lane.winrate}% (
                             <span className="text-blue-400">{lane.wins}</span>/
                             <span className="text-red-400">{lane.losses}</span>)
                           </li>
@@ -172,7 +187,9 @@ export default function PlayerStatsPage() {
                     </div>
 
                     <div className="mb-4">
-                      <label className="block mb-1 font-medium">본인라인:</label>
+                      <label className="block mb-1 font-medium">
+                        본인라인:
+                      </label>
                       <select
                         value={detailPosition}
                         onChange={(e) => setDetailPosition(e.target.value)}
@@ -187,53 +204,95 @@ export default function PlayerStatsPage() {
                     </div>
 
                     <div className="mb-4">
-                      <p className="font-semibold text-lg mb-2">가장 시너지 좋은 팀원</p>
+                      <p className="font-semibold text-lg mb-2">
+                        가장 시너지 좋은 팀원
+                      </p>
                       {detailStats.bestTeammates.length > 0 ? (
                         <ul className="space-y-1 text-sm">
                           {detailStats.bestTeammates.map((tm: any) => (
                             <li key={`${tm.alias}-${tm.winrate}`}>
                               {tm.alias} -{" "}
-                              <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>{tm.winrate}%</span>{" "}
-                              <span className="text-gray-400">({tm.total}판)</span>
+                              <span
+                                className={
+                                  tm.winrate >= 50
+                                    ? "text-blue-400"
+                                    : "text-red-400"
+                                }
+                              >
+                                {tm.winrate}%
+                              </span>{" "}
+                              <span className="text-gray-400">
+                                ({tm.total}판)
+                              </span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
+                        <p className="text-gray-400">
+                          조건에 맞는 데이터가 없습니다.
+                        </p>
                       )}
                     </div>
 
                     <div className="mb-4">
-                      <p className="font-semibold text-lg mb-2">가장 어려운 상대</p>
+                      <p className="font-semibold text-lg mb-2">
+                        가장 어려운 상대
+                      </p>
                       {detailStats.hardestOpponents.length > 0 ? (
                         <ul className="space-y-1 text-sm">
                           {detailStats.hardestOpponents.map((op: any) => (
                             <li key={`${op.alias}-${op.winrate}`}>
                               {op.alias} -{" "}
-                              <span className={op.winrate >= 50 ? "text-blue-400" : "text-red-400"}>{op.winrate}%</span>{" "}
-                              <span className="text-gray-400">({op.total}판)</span>
+                              <span
+                                className={
+                                  op.winrate >= 50
+                                    ? "text-blue-400"
+                                    : "text-red-400"
+                                }
+                              >
+                                {op.winrate}%
+                              </span>{" "}
+                              <span className="text-gray-400">
+                                ({op.total}판)
+                              </span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-gray-400">조건에 맞는 데이터가 없습니다.</p>
+                        <p className="text-gray-400">
+                          조건에 맞는 데이터가 없습니다.
+                        </p>
                       )}
                     </div>
 
                     <div>
-                      <p className="font-semibold text-lg mb-2">함께 가장 많이한 플레이어</p>
+                      <p className="font-semibold text-lg mb-2">
+                        함께 가장 많이한 플레이어
+                      </p>
                       {detailStats.mostFrequentTeammates.length > 0 ? (
                         <ul className="space-y-1 text-sm">
                           {detailStats.mostFrequentTeammates.map((tm: any) => (
                             <li key={`${tm.alias}-${tm.total}`}>
                               {tm.alias} -{" "}
-                              <span className={tm.winrate >= 50 ? "text-blue-400" : "text-red-400"}>{tm.winrate}%</span>{" "}
-                              <span className="text-gray-400">({tm.total}판)</span>
+                              <span
+                                className={
+                                  tm.winrate >= 50
+                                    ? "text-blue-400"
+                                    : "text-red-400"
+                                }
+                              >
+                                {tm.winrate}%
+                              </span>{" "}
+                              <span className="text-gray-400">
+                                ({tm.total}판)
+                              </span>
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <p className="text-gray-400 text-sm">조건에 맞는 데이터가 없습니다.</p>
+                        <p className="text-gray-400 text-sm">
+                          조건에 맞는 데이터가 없습니다.
+                        </p>
                       )}
                     </div>
                   </>
@@ -241,7 +300,9 @@ export default function PlayerStatsPage() {
               ) : loadingStats ? (
                 <p className="text-gray-400">로딩 중...</p>
               ) : champStats.length === 0 ? (
-                <p className="text-gray-400">해당 플레이어의 2025년 데이터가 없습니다.</p>
+                <p className="text-gray-400">
+                  해당 플레이어의 2025년 데이터가 없습니다.
+                </p>
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead className="text-gray-400 border-b border-white/10">
@@ -266,14 +327,21 @@ export default function PlayerStatsPage() {
                           <td className="py-2 px-2">
                             <div className="flex items-center gap-2">
                               {c.championKR !== "모든 챔피언" && (
-                                <ImageWithFallback src={c.imageUrl} alt={c.championKR} />
+                                <ImageWithFallback
+                                  src={c.imageUrl}
+                                  alt={c.championKR}
+                                />
                               )}
                               <span>{c.championKR}</span>
                             </div>
                           </td>
                           <td className="text-center">{c.kda}</td>
-                          <td className="text-center">{c.avgDamage.toLocaleString()}</td>
-                          <td className="text-center">{c.avgGold.toLocaleString()}</td>
+                          <td className="text-center">
+                            {c.avgDamage.toLocaleString()}
+                          </td>
+                          <td className="text-center">
+                            {c.avgGold.toLocaleString()}
+                          </td>
                           <td className="text-center">
                             <span className="text-blue-400">{c.wins}</span>/
                             <span className="text-red-400">{c.losses}</span>
@@ -287,7 +355,9 @@ export default function PlayerStatsPage() {
               )}
             </>
           ) : (
-            <p className="text-gray-400 text-center mt-10">플레이어를 선택해주세요.</p>
+            <p className="text-gray-400 text-center mt-10">
+              플레이어를 선택해주세요.
+            </p>
           )}
         </div>
       </div>
