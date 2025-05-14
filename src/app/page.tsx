@@ -56,6 +56,11 @@ export default function DashboardPage() {
       description: "플레이어 전적 비교",
       href: "/compare",
     },
+    {
+      title: "롤스컵 경매장",
+      description: "롤스컵 경매",
+      href: "/auction",
+    },
   ];
 
   const handleClick = (href: string) => {
