@@ -4,6 +4,18 @@ import { Server as SocketIOServer } from "socket.io";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { Server as IOServer } from "socket.io";
 import { PLAYERS, PlayerBasic } from "@/lib/players";
+import { getAllPlayerStats } from "@/lib/winrate";
+
+type Player = PlayerBasic & {
+  winrateOverall?: number;
+  winrateByLane?: {
+    top: number | null;
+    jungle: number | null;
+    mid: number | null;
+    adc: number | null;
+    support: number | null;
+  };
+};
 
 type NextApiResponseWithSocket = NextApiResponse & {
   socket: {
@@ -17,6 +29,7 @@ const state = {
   playerQueue: [...PLAYERS],
   currentPlayer: null as PlayerBasic | null,
   currentBid: 0,
+  remainingTime: 0,
   currentBidder: null as string | null,
   biddingTimer: null as NodeJS.Timeout | null,
   countdownTimer: null as NodeJS.Timeout | null,
@@ -26,14 +39,27 @@ const state = {
   userPoints: {} as Record<string, number>,
   userSocketMap: {} as Record<string, string>,
   connectedUsers: {} as Record<string, { role: string; team: string | null }>,
+  fullPlayerDataMap: {} as Record<string, Player>,
 };
 
+function shuffleArray<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 function emitAuctionSync(io: IOServer) {
-  io.emit("auctionSync", {
-    teams: state.teamPlayers,
-    bidHistory: state.bidHistory,
-    history: state.historyEntries,
-  });
+  const payload = {
+    syncedTeams: state.teamPlayers,
+    syncedBids: state.bidHistory,
+    syncedHistory: state.historyEntries,
+  };
+
+  io.emit("auctionSync", payload);
+  io.emit("teamPanelSync", payload);
 }
 
 function startCountdown(io: IOServer) {
@@ -51,7 +77,10 @@ function startCountdown(io: IOServer) {
         return;
       }
 
-      io.emit("showPlayer", state.currentPlayer);
+      const enriched = state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
+      const fullPlayer = { ...state.currentPlayer, ...enriched };
+      io.emit("showPlayer", fullPlayer);
+      console.log("🎯 showPlayer emit:", fullPlayer);
       startBidding(io);
     }
 
@@ -62,20 +91,23 @@ function startCountdown(io: IOServer) {
 function startBidding(io: IOServer) {
   state.currentBid = 0;
   state.currentBidder = null;
-  let remainingTime = 15;
+  state.remainingTime = 15;
 
   io.emit("startBidding");
 
   clearInterval(state.biddingTimer!);
   state.biddingTimer = setInterval(() => {
-    remainingTime -= 1;
-    io.emit("tick", { remainingTime });
+    state.remainingTime -= 1;
+    io.emit("tick", { remainingTime: state.remainingTime });
 
-    if (remainingTime <= 0) {
+    if (state.remainingTime <= 0) {
       clearInterval(state.biddingTimer!);
 
       if (!state.currentBidder) {
-        io.emit("playerPassed", { player: state.currentPlayer });
+        io.emit("playerPassed", {
+          id: state.currentPlayer?.id,
+          name: state.currentPlayer?.name,
+        });
       } else {
         const team = state.currentBidder;
         const player = state.currentPlayer!;
@@ -89,6 +121,11 @@ function startBidding(io: IOServer) {
         state.historyEntries.push({ player, team, bid });
 
         emitAuctionSync(io);
+
+        io.emit("playerDrafted", {
+          id: player.id,
+          name: player.name,
+        });
       }
 
       state.currentPlayer = null;
@@ -102,11 +139,21 @@ function setupSocketHandlers(io: IOServer) {
   io.on("connection", (socket) => {
     console.log("✅ Client connected:", socket.id);
 
-    socket.on("join", ({ userId, role, team }) => {
+    socket.on("join", async ({ userId, role, team }) => {
       state.userSocketMap[userId] = socket.id;
       state.userPoints[userId] ??= 1000;
       state.teamPlayers[userId] ??= [];
       state.connectedUsers[userId] = { role, team };
+
+      if (role === "사회자" && Object.keys(state.fullPlayerDataMap).length === 0) {
+        console.log("📦 플레이어 통계 정보 미리 조회 시작...");
+        state.fullPlayerDataMap = await getAllPlayerStats();
+        console.log("✅ 전체 플레이어 데이터 조회 완료");
+      }
+
+      console.log("✅ join 수신:", userId);
+      console.log("📌 socketId 저장됨:", socket.id);
+      console.log("🧩 현재 userSocketMap:", state.userSocketMap);
 
       io.emit("userListUpdate", state.connectedUsers);
     });
@@ -125,7 +172,7 @@ function setupSocketHandlers(io: IOServer) {
       clearInterval(state.countdownTimer!);
       clearInterval(state.biddingTimer!);
 
-      state.playerQueue = [...PLAYERS];
+      state.playerQueue = shuffleArray([...PLAYERS]);
       state.currentPlayer = null;
       state.teamPlayers = {};
       state.bidHistory = {};
@@ -145,7 +192,9 @@ function setupSocketHandlers(io: IOServer) {
         return;
       }
 
-      io.emit("showPlayer", state.currentPlayer);
+      const enriched = state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
+      const fullPlayer = { ...state.currentPlayer, ...enriched };
+      io.emit("showPlayer", fullPlayer);
       startBidding(io);
     });
 
@@ -158,6 +207,8 @@ function setupSocketHandlers(io: IOServer) {
 
       state.currentBid = bid;
       state.currentBidder = userId;
+
+      state.remainingTime = 15;
 
       io.emit("updateBid", {
         bid,
@@ -172,8 +223,14 @@ function setupSocketHandlers(io: IOServer) {
     });
 
     socket.on("requestInit", ({ userId }) => {
+      console.log("📥 requestInit 수신:", userId);
       const socketId = state.userSocketMap[userId];
-      if (!socketId) return;
+      console.log("🎯 socketId:", socketId);
+
+      if (!socketId) {
+        console.warn("❌ socketId 없음! userSocketMap에 등록 안 됨");
+        return;
+      }
 
       io.to(socketId).emit("auctionSync", {
         teams: state.teamPlayers,
@@ -182,6 +239,27 @@ function setupSocketHandlers(io: IOServer) {
       });
 
       io.to(socketId).emit("userListUpdate", state.connectedUsers);
+    });
+
+    socket.on("resetAuction", () => {
+      console.log("🧹 경매 초기화 요청됨");
+
+      clearInterval(state.countdownTimer!);
+      clearInterval(state.biddingTimer!);
+
+      state.playerQueue = [...PLAYERS];
+      state.currentPlayer = null;
+      state.currentBid = 0;
+      state.currentBidder = null;
+      state.biddingTimer = null;
+      state.countdownTimer = null;
+      state.teamPlayers = {};
+      state.bidHistory = {};
+      state.historyEntries = [];
+      state.remainingTime = 0;
+
+      emitAuctionSync(io);
+      io.emit("auctionReset");
     });
   });
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getSocket } from "@/lib/socket";
+import ResetButton from "./ResetButton";
 
 export default function BidPanel({
   role,
@@ -164,12 +165,16 @@ export default function BidPanel({
         )}
 
         {role === "host" && (
-          <button
-            onClick={() => socket.emit("nextPlayer")}
-            className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded font-bold"
-          >
-            ⏭️ 다음 사람
-          </button>
+          <>
+            <button
+              onClick={() => socket.emit("nextPlayer")}
+              className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded font-bold"
+            >
+              ⏭️ 다음 사람
+            </button>
+
+            <ResetButton />
+          </>
         )}
       </div>
     </div>

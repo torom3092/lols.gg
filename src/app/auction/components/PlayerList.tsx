@@ -1,56 +1,90 @@
-// components/PlayerList.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { getSocket } from "@/lib/socket";
-import { PLAYERS, PlayerBasic } from "@/lib/players";
+import { PLAYERS } from "@/lib/players";
 
 type PlayerStatus = "idle" | "current" | "drafted" | "passed";
 
 export default function PlayerList() {
   const [playerStatuses, setPlayerStatuses] = useState<Record<string, PlayerStatus>>({});
-  const [currentPlayer, setCurrentPlayer] = useState<PlayerBasic | null>(null);
 
-useEffect(() => {
-  const socket = getSocket();
-
-  socket.on("auctionSync", ({ data }) => {
-     console.log("✅ auctionSync 수신", data);
-    const draftedIds = new Set(
-      Object.values(data).flat().map((p:any) => p.id)
-    );
-    const updated: Record<string, PlayerStatus> = {};
-    for (const p of PLAYERS) {
-      updated[p.id] = draftedIds.has(p.id) ? "drafted" : "idle";
-    }
-    setPlayerStatuses(updated);
-  });
-
-  socket.on("showPlayer", (player: PlayerBasic) => {
-    setPlayerStatuses((prev) => {
-      const updated = { ...prev };
-      Object.keys(updated).forEach((id) => {
-        if (updated[id] === "current") updated[id] = "idle";
-      });
-      updated[player.id] = "current";
-      return updated;
-    });
-  });
-
-  socket.on("playerPassed", ({ player }) => {
-    setPlayerStatuses((prev) => ({
-      ...prev,
-      [player.id]: "passed",
-    }));
-  });
-
-  return () => {
-    socket.off("auctionSync");
-    socket.off("showPlayer");
-    socket.off("playerPassed");
+  const findIdByName = (name: string) => {
+    const found = PLAYERS.find((p) => p.name === name);
+    if (!found) console.warn("[PlayerList] 이름으로 ID 찾기 실패:", name);
+    return found?.id;
   };
-}, []);
 
+  useEffect(() => {
+    const socket = getSocket();
+
+    socket.on("auctionReset", () => {
+      console.log("[PlayerList] auctionReset 수신 → 상태 초기화");
+      setPlayerStatuses({});
+    });
+
+    socket.on("auctionSync", ({ teams }) => {
+      if (!teams) return;
+      console.log("[PlayerList] auctionSync 수신:", teams);
+
+      const draftedIds = new Set<string>();
+      Object.values(teams).forEach((players: any) => {
+        players.forEach((p: any) => draftedIds.add(p.id));
+      });
+
+      setPlayerStatuses((prev) => {
+        const updated: Record<string, PlayerStatus> = {};
+        for (const player of PLAYERS) {
+          updated[player.id] = draftedIds.has(player.id) ? "drafted" : "idle";
+        }
+        return updated;
+      });
+    });
+
+    socket.on("playerPassed", ({ id, name }: { id: string; name: string }) => {
+      console.log("[PlayerList] playerPassed 수신:", id);
+      setPlayerStatuses((prev) => ({
+        ...prev,
+        [id]: "passed",
+      }));
+    });
+
+    socket.on("playerDrafted", ({ name }: { name: string }) => {
+      const id = findIdByName(name);
+      console.log("[playerDrafted] 받은 이름:", name, "→ id 변환 결과:", id);
+      if (!id) return; // ❗ 여기서 걸리는지 확인
+      setPlayerStatuses((prev) => ({
+        ...prev,
+        [id]: "drafted",
+      }));
+    });
+
+    socket.on("showPlayer", ({ id }: { id: string }) => {
+      console.log("[PlayerList] showPlayer 수신:", id);
+
+      setPlayerStatuses((prev) => {
+        const updated: Record<string, PlayerStatus> = {};
+        for (const player of PLAYERS) {
+          if (player.id === id) {
+            updated[player.id] = "current";
+          } else if (prev[player.id] === "drafted" || prev[player.id] === "passed") {
+            updated[player.id] = prev[player.id]; // 유지
+          } else {
+            updated[player.id] = "idle";
+          }
+        }
+        return updated;
+      });
+    });
+
+    return () => {
+      socket.off("auctionSync");
+      socket.off("playerPassed");
+      socket.off("playerDrafted");
+      socket.off("showPlayer");
+      socket.off("auctionReset");
+    };
+  }, []);
 
   return (
     <div className="bg-gray-800 rounded p-4 text-white h-full overflow-y-auto">
@@ -68,10 +102,7 @@ useEffect(() => {
               : "bg-gray-700 border-gray-600";
 
           return (
-            <div
-              key={player.id}
-              className={`p-2 rounded text-center font-semibold border ${className}`}
-            >
+            <div key={player.id} className={`p-2 rounded text-center font-semibold border ${className}`}>
               {player.name}
             </div>
           );
