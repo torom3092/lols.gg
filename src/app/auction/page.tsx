@@ -17,8 +17,28 @@ export default function AuctionPage() {
 
   const socket = getSocket();
 
+  // ✅ 👇 반드시 컴포넌트 최상단에서 호출
+  useEffect(() => {
+    if (!joined || !userId) return;
+
+    const sendInit = () => {
+      console.log("📨 AuctionPage → requestInit:", userId);
+      socket.emit("requestInit", { userId });
+    };
+
+    if (socket.connected) {
+      sendInit();
+    } else {
+      socket.on("connect", sendInit);
+    }
+
+    return () => {
+      socket.off("connect", sendInit);
+    };
+  }, [joined, userId]);
+
   const handleJoin = (selectedRole: string, selectedTeam?: string) => {
-    const newUserId = selectedTeam ?? selectedRole; // 팀 이름이 있으면 팀, 없으면 역할로 설정
+    const newUserId = selectedTeam ?? selectedRole;
     setUserId(newUserId);
     setRole(selectedRole);
     setTeam(selectedTeam ?? null);
@@ -35,23 +55,21 @@ export default function AuctionPage() {
 
   if (!joined) {
     return (
-      <div className="min-h-screen  text-white flex items-center justify-center">
+      <div className="min-h-screen text-white flex items-center justify-center">
         <RoleSelector onJoin={handleJoin} />
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-12 gap-4 p-4 min-h-screen  text-white">
+    <div className="grid grid-cols-12 gap-4 p-4 min-h-screen text-white">
       <div className="col-span-3">
         <TeamPanel />
       </div>
-
       <div className="col-span-6 flex flex-col items-center space-y-4">
         <PlayerInfoBox />
         <BidPanel role={role} team={team} userId={userId} />
       </div>
-
       <div className="col-span-3">
         <PlayerList />
       </div>

@@ -1,3 +1,4 @@
+// components/PlayerList.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,47 +7,50 @@ import { PLAYERS, PlayerBasic } from "@/lib/players";
 
 type PlayerStatus = "idle" | "current" | "drafted" | "passed";
 
-export default function PlayerPanel() {
+export default function PlayerList() {
+  const [playerStatuses, setPlayerStatuses] = useState<Record<string, PlayerStatus>>({});
+  const [currentPlayer, setCurrentPlayer] = useState<PlayerBasic | null>(null);
+
+useEffect(() => {
   const socket = getSocket();
 
-  const [playerStatuses, setPlayerStatuses] = useState<Record<string, PlayerStatus>>({});
+  socket.on("auctionSync", ({ data }) => {
+     console.log("✅ auctionSync 수신", data);
+    const draftedIds = new Set(
+      Object.values(data).flat().map((p:any) => p.id)
+    );
+    const updated: Record<string, PlayerStatus> = {};
+    for (const p of PLAYERS) {
+      updated[p.id] = draftedIds.has(p.id) ? "drafted" : "idle";
+    }
+    setPlayerStatuses(updated);
+  });
 
-  useEffect(() => {
-    // 초기 상태: 모두 idle
-    setPlayerStatuses(Object.fromEntries(PLAYERS.map((p) => [p.id, "idle"])));
-
-    socket.on("showPlayer", (player: PlayerBasic) => {
-      setPlayerStatuses((prev) => {
-        const updated = { ...prev };
-        // 모든 current 상태 초기화
-        Object.keys(updated).forEach((id) => {
-          if (updated[id] === "current") updated[id] = "idle";
-        });
-        updated[player.id] = "current";
-        return updated;
+  socket.on("showPlayer", (player: PlayerBasic) => {
+    setPlayerStatuses((prev) => {
+      const updated = { ...prev };
+      Object.keys(updated).forEach((id) => {
+        if (updated[id] === "current") updated[id] = "idle";
       });
+      updated[player.id] = "current";
+      return updated;
     });
+  });
 
-    socket.on("playerDrafted", ({ player }: { player: PlayerBasic }) => {
-      setPlayerStatuses((prev) => ({
-        ...prev,
-        [player.id]: "drafted",
-      }));
-    });
+  socket.on("playerPassed", ({ player }) => {
+    setPlayerStatuses((prev) => ({
+      ...prev,
+      [player.id]: "passed",
+    }));
+  });
 
-    socket.on("playerPassed", ({ player }: { player: PlayerBasic }) => {
-      setPlayerStatuses((prev) => ({
-        ...prev,
-        [player.id]: "passed",
-      }));
-    });
+  return () => {
+    socket.off("auctionSync");
+    socket.off("showPlayer");
+    socket.off("playerPassed");
+  };
+}, []);
 
-    return () => {
-      socket.off("showPlayer");
-      socket.off("playerDrafted");
-      socket.off("playerPassed");
-    };
-  }, []);
 
   return (
     <div className="bg-gray-800 rounded p-4 text-white h-full overflow-y-auto">
@@ -64,7 +68,10 @@ export default function PlayerPanel() {
               : "bg-gray-700 border-gray-600";
 
           return (
-            <div key={player.id} className={`p-2 rounded text-center font-semibold border ${className}`}>
+            <div
+              key={player.id}
+              className={`p-2 rounded text-center font-semibold border ${className}`}
+            >
               {player.name}
             </div>
           );
