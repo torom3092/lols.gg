@@ -43,15 +43,13 @@ export default function PlayerCombinationAnalysis() {
     }
     const data = await res.json();
     setResult(data);
-    console.log(data);
+
     setLoading(false);
   };
 
   return (
     <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        플레이어 조합 분석
-      </h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">플레이어 조합 분석</h1>
       <div className="flex flex-wrap justify-center gap-4 mb-6">
         {[0, 1, 2].map((i) => (
           <select
@@ -79,9 +77,7 @@ export default function PlayerCombinationAnalysis() {
           분석하기
         </button>
       </div>
-      {loading && (
-        <div className="text-center text-neutral-300">분석 중...</div>
-      )}
+      {loading && <div className="text-center text-neutral-300">분석 중...</div>}
 
       {result && (
         <div className="mt-6 bg-neutral-900 p-6 rounded-xl text-white space-y-6">
@@ -89,9 +85,7 @@ export default function PlayerCombinationAnalysis() {
             <div>총 경기 수: {result.total}회</div>
             <div>승리 수: {result.wins}회</div>
             <div>패배 수: {result.losses}회</div>
-            <div className="font-bold text-xl mt-2">
-              승률: {result.winrate}%
-            </div>
+            <div className="font-bold text-xl mt-2">승률: {result.winrate}%</div>
           </div>
 
           {/* 🔵 라인 조합 */}
@@ -110,16 +104,10 @@ export default function PlayerCombinationAnalysis() {
                     UTILITY: "서폿",
                   }[en] || en);
 
-                const translatedCombo = combo.laneCombo
-                  .split(" + ")
-                  .map(translate)
-                  .join(" + ");
+                const translatedCombo = combo.laneCombo.split(" + ").map(translate).join(" + ");
 
                 return (
-                  <div
-                    key={idx}
-                    className="flex justify-between bg-neutral-800 px-4 py-2 rounded-lg text-sm"
-                  >
+                  <div key={idx} className="flex justify-between bg-neutral-800 px-4 py-2 rounded-lg text-sm">
                     <span>{translatedCombo}</span>
                     <span className="text-right">
                       {combo.wins}승 / {combo.losses}패 ({combo.count}회)
@@ -137,15 +125,11 @@ export default function PlayerCombinationAnalysis() {
             </h2>
             <div className="space-y-2">
               {result.champCombos.map((combo: any, idx: number) => {
-                const translateChampionName = (name: string) =>
-                  championNameKo[name] || name;
+                const translateChampionName = (name: string) => championNameKo[name] || name;
 
                 const translatedNames = combo.names.map(translateChampionName);
                 return (
-                  <div
-                    key={idx}
-                    className="flex justify-between bg-neutral-800 px-4 py-2 rounded-lg text-sm"
-                  >
+                  <div key={idx} className="flex justify-between bg-neutral-800 px-4 py-2 rounded-lg text-sm">
                     <span>{translatedNames.join(" + ")}</span>
                     <span className="text-right">
                       {combo.wins}승 / {combo.losses}패

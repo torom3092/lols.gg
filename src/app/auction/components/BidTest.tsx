@@ -10,12 +10,9 @@ export default function AuctionPage() {
   const socket = getSocket();
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("🔌 Connected to socket");
-    });
+    socket.on("connect", () => {});
 
     socket.on("updateBid", (data: { bid: number; userId: string }) => {
-      console.log("📩 New bid received", data);
       setCurrentBid(data.bid);
       setCurrentBidder(data.userId);
     });

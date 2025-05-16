@@ -23,16 +23,13 @@ export default function AuctionPage() {
     const socket = getSocket();
 
     const sendInit = () => {
-      console.log("📨 [클라] requestInit emit 시작", userId);
       socket.emit("requestInit", { userId });
     };
 
     if (socket.connected) {
-      console.log("✅ [클라] 소켓 연결됨");
       setTimeout(sendInit, 300);
     } else {
       socket.on("connect", () => {
-        console.log("✅ [클라] 소켓 연결 후 emit");
         setTimeout(sendInit, 300);
       });
     }
@@ -48,8 +45,6 @@ export default function AuctionPage() {
     setRole(selectedRole);
     setTeam(selectedTeam ?? null);
     setJoined(true);
-
-    console.log(`🙋‍♂️ 역할: ${selectedRole}, 팀: ${selectedTeam}`);
 
     socket.emit("join", {
       userId: newUserId,

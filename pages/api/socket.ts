@@ -80,7 +80,7 @@ function startCountdown(io: IOServer) {
       const enriched = state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
       const fullPlayer = { ...state.currentPlayer, ...enriched };
       io.emit("showPlayer", fullPlayer);
-      console.log("🎯 showPlayer emit:", fullPlayer);
+
       startBidding(io);
     }
 
@@ -137,23 +137,13 @@ function startBidding(io: IOServer) {
 
 function setupSocketHandlers(io: IOServer) {
   io.on("connection", (socket) => {
-    console.log("✅ Client connected:", socket.id);
-
     socket.on("join", async ({ userId, role, team }) => {
       state.userSocketMap[userId] = socket.id;
       state.userPoints[userId] ??= 1000;
       state.teamPlayers[userId] ??= [];
       state.connectedUsers[userId] = { role, team };
 
-      if (role === "사회자" && Object.keys(state.fullPlayerDataMap).length === 0) {
-        console.log("📦 플레이어 통계 정보 미리 조회 시작...");
-        state.fullPlayerDataMap = await getAllPlayerStats();
-        console.log("✅ 전체 플레이어 데이터 조회 완료");
-      }
-
-      console.log("✅ join 수신:", userId);
-      console.log("📌 socketId 저장됨:", socket.id);
-      console.log("🧩 현재 userSocketMap:", state.userSocketMap);
+      state.fullPlayerDataMap = await getAllPlayerStats();
 
       io.emit("userListUpdate", state.connectedUsers);
     });
@@ -223,9 +213,7 @@ function setupSocketHandlers(io: IOServer) {
     });
 
     socket.on("requestInit", ({ userId }) => {
-      console.log("📥 requestInit 수신:", userId);
       const socketId = state.userSocketMap[userId];
-      console.log("🎯 socketId:", socketId);
 
       if (!socketId) {
         console.warn("❌ socketId 없음! userSocketMap에 등록 안 됨");
@@ -242,8 +230,6 @@ function setupSocketHandlers(io: IOServer) {
     });
 
     socket.on("resetAuction", () => {
-      console.log("🧹 경매 초기화 요청됨");
-
       clearInterval(state.countdownTimer!);
       clearInterval(state.biddingTimer!);
 
@@ -273,8 +259,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWithSoc
 
     setupSocketHandlers(io);
     res.socket.server.io = io;
-
-    console.log("🚀 Socket.IO server initialized");
   }
 
   res.end();

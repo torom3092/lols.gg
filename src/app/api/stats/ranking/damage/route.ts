@@ -30,10 +30,6 @@ export async function GET(req: NextRequest) {
   const aliasStats: Record<string, { totalDamage: number; totalGames: number }> = {};
   const matches = await db.collection("matches").find().toArray();
 
-  console.log("게임 수:", matches.length);
-  console.log("positionFilter: ", positionFilter);
-  console.log("monthFilter: ", rawMonth);
-
   for (const match of matches) {
     const date = new Date(match.gameDate);
     if (rawYear && rawYear !== "전체" && date.getFullYear() !== Number(rawYear)) {
@@ -50,7 +46,6 @@ export async function GET(req: NextRequest) {
       const rawDamage = p.totalDamageDealtToChampions;
       const damage = typeof rawDamage === "number" ? rawDamage : Number(rawDamage);
       if (isNaN(damage)) {
-        console.log("damage 변환 실패:", p.name, rawDamage);
         continue;
       }
 

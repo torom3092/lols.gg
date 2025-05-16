@@ -33,7 +33,6 @@ export default function TeamPanel() {
       syncedHistory: HistoryEntry[];
       syncedBids: Record<string, number>;
     }) => {
-      console.log("📦 teamPanel sync 수신:", data);
       setTeams(data.syncedTeams);
       setHistoryEntries(data.syncedHistory);
       setBidHistory(data.syncedBids);

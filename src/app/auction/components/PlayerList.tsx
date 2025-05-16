@@ -19,13 +19,11 @@ export default function PlayerList() {
     const socket = getSocket();
 
     socket.on("auctionReset", () => {
-      console.log("[PlayerList] auctionReset 수신 → 상태 초기화");
       setPlayerStatuses({});
     });
 
     socket.on("auctionSync", ({ teams }) => {
       if (!teams) return;
-      console.log("[PlayerList] auctionSync 수신:", teams);
 
       const draftedIds = new Set<string>();
       Object.values(teams).forEach((players: any) => {
@@ -42,7 +40,6 @@ export default function PlayerList() {
     });
 
     socket.on("playerPassed", ({ id, name }: { id: string; name: string }) => {
-      console.log("[PlayerList] playerPassed 수신:", id);
       setPlayerStatuses((prev) => ({
         ...prev,
         [id]: "passed",
@@ -51,7 +48,7 @@ export default function PlayerList() {
 
     socket.on("playerDrafted", ({ name }: { name: string }) => {
       const id = findIdByName(name);
-      console.log("[playerDrafted] 받은 이름:", name, "→ id 변환 결과:", id);
+
       if (!id) return; // ❗ 여기서 걸리는지 확인
       setPlayerStatuses((prev) => ({
         ...prev,
@@ -60,8 +57,6 @@ export default function PlayerList() {
     });
 
     socket.on("showPlayer", ({ id }: { id: string }) => {
-      console.log("[PlayerList] showPlayer 수신:", id);
-
       setPlayerStatuses((prev) => {
         const updated: Record<string, PlayerStatus> = {};
         for (const player of PLAYERS) {
