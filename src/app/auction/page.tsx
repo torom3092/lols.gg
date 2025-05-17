@@ -31,8 +31,13 @@ export default function AuctionPage() {
     } else {
       socket.on("connect", () => {
         setTimeout(sendInit, 300);
+        console.log("✅ Connected to socket server:", socket.id);
       });
     }
+
+    socket.on("auctionStarted", () => {
+      alert("🎯 경매가 시작되었습니다!");
+    });
 
     return () => {
       socket.off("connect", sendInit);
