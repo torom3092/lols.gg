@@ -10,15 +10,17 @@ export default function HistoryTab() {
   const router = useRouter();
   const [matches, setMatches] = useState([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(Number(searchParams.get("page") || "1"));
+  const pageValue = searchParams && searchParams.get("page");
+  const [page, setPage] = useState(Number(searchParams?.get("page") || "1"));
+
   const limit = 10;
 
   const [filters, setFilters] = useState({
-    from: searchParams.get("from") || "",
-    to: searchParams.get("to") || "",
-    name: searchParams.get("name") || "",
-    champion: searchParams.get("champion") || "",
-    matchId: searchParams.get("matchId") || "",
+    from: searchParams?.get("from") || "",
+    to: searchParams?.get("to") || "",
+    name: searchParams?.get("name") || "",
+    champion: searchParams?.get("champion") || "",
+    matchId: searchParams?.get("matchId") || "",
   });
 
   const updateUrlParams = (updatedFilters: any, newPage: number) => {
