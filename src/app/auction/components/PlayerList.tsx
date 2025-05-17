@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getSocket } from "@/lib/socket";
 import { PLAYERS } from "@/lib/players";
+import PassedPlayerList from "./PassedPlayerList";
 
 type PlayerStatus = "idle" | "current" | "drafted" | "passed";
 
@@ -103,6 +104,8 @@ export default function PlayerList() {
           );
         })}
       </div>
+
+      <PassedPlayerList />
     </div>
   );
 }

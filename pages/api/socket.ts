@@ -27,6 +27,7 @@ type NextApiResponseWithSocket = NextApiResponse & {
 
 const state = {
   playerQueue: [...PLAYERS],
+  passedPlayers: [] as PlayerBasic[],
   currentPlayer: null as PlayerBasic | null,
   currentBid: 0,
   remainingTime: 0,
@@ -40,6 +41,7 @@ const state = {
   userSocketMap: {} as Record<string, string>,
   connectedUsers: {} as Record<string, { role: string; team: string | null }>,
   fullPlayerDataMap: {} as Record<string, Player>,
+  isRetryingPassed: false,
 };
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -67,7 +69,36 @@ function emitCurrentPlayer(io: IOServer) {
   const enriched = nameKey ? state.fullPlayerDataMap[nameKey] ?? {} : {};
   const fullPlayer = { ...state.currentPlayer, ...enriched };
 
+  io.emit("initPlayer", fullPlayer);
   io.emit("showPlayer", fullPlayer);
+}
+
+function handlePlayerPassed(io: IOServer) {
+  if (state.currentPlayer) {
+    state.passedPlayers.push(state.currentPlayer);
+    io.emit(
+      "playerPassedListUpdate",
+      state.passedPlayers.map((p) => p.name)
+    );
+  }
+
+  if (state.playerQueue.length === 0) {
+    if (!state.isRetryingPassed) {
+      state.playerQueue = [...state.passedPlayers];
+      state.isRetryingPassed = true;
+    } else {
+      io.emit("auctionEnd");
+      return;
+    }
+  }
+
+  state.currentPlayer = state.playerQueue.shift() ?? null;
+  if (!state.currentPlayer) {
+    io.emit("auctionEnd");
+    return;
+  }
+  emitCurrentPlayer(io);
+  startBidding(io);
 }
 
 function startCountdown(io: IOServer) {
@@ -113,6 +144,7 @@ function startBidding(io: IOServer) {
           id: state.currentPlayer?.id,
           name: state.currentPlayer?.name,
         });
+        handlePlayerPassed(io);
       } else {
         const team = state.currentBidder;
         const player = state.currentPlayer!;
@@ -131,11 +163,17 @@ function startBidding(io: IOServer) {
           id: player.id,
           name: player.name,
         });
-      }
 
-      state.currentPlayer = null;
-      state.currentBidder = null;
-      state.currentBid = 0;
+        if (state.playerQueue.length === 0 && state.passedPlayers.length === 0 && state.isRetryingPassed) {
+          io.emit("auctionEnd");
+        } else {
+          state.currentPlayer = state.playerQueue.shift() ?? null;
+          if (state.currentPlayer) {
+            emitCurrentPlayer(io);
+            startBidding(io);
+          }
+        }
+      }
     }
   }, 1000);
 }
@@ -168,10 +206,12 @@ function setupSocketHandlers(io: IOServer) {
       clearInterval(state.biddingTimer!);
 
       state.playerQueue = shuffleArray([...PLAYERS]);
+      state.passedPlayers = [];
       state.currentPlayer = null;
       state.teamPlayers = {};
       state.bidHistory = {};
       state.historyEntries = [];
+      state.isRetryingPassed = false;
 
       emitAuctionSync(io);
       startCountdown(io);
@@ -232,11 +272,15 @@ function setupSocketHandlers(io: IOServer) {
       io.to(socketId).emit("userListUpdate", state.connectedUsers);
 
       if (state.currentPlayer) {
-        const enriched =
-          state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
+        const enriched = state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
         const fullPlayer = { ...state.currentPlayer, ...enriched };
-        io.to(socketId).emit("showPlayer", fullPlayer); // ✅ 현재 플레이어 재전달
+        io.to(socketId).emit("initPlayer", fullPlayer);
       }
+
+      io.to(socketId).emit(
+        "playerPassedListUpdate",
+        state.passedPlayers.map((p) => p.name)
+      );
     });
 
     socket.on("resetAuction", () => {
@@ -244,6 +288,7 @@ function setupSocketHandlers(io: IOServer) {
       clearInterval(state.biddingTimer!);
 
       state.playerQueue = [...PLAYERS];
+      state.passedPlayers = [];
       state.currentPlayer = null;
       state.currentBid = 0;
       state.currentBidder = null;
@@ -253,17 +298,16 @@ function setupSocketHandlers(io: IOServer) {
       state.bidHistory = {};
       state.historyEntries = [];
       state.remainingTime = 0;
+      state.isRetryingPassed = false;
 
       emitAuctionSync(io);
       io.emit("auctionReset");
+      io.emit("playerPassedListUpdate", []);
     });
   });
 }
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponseWithSocket
-) {
+export default function handler(req: NextApiRequest, res: NextApiResponseWithSocket) {
   if (!res.socket.server.io) {
     const io = new SocketIOServer(res.socket.server, {
       path: "/api/socket",

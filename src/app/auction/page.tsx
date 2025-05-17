@@ -67,7 +67,7 @@ export default function AuctionPage() {
         <TeamPanel />
       </div>
       <div className="col-span-6 flex flex-col items-center space-y-4">
-        <PlayerInfoBox />
+        <PlayerInfoBox userId={userId} />
         <BidPanel role={role} team={team} userId={userId} />
       </div>
       <div className="col-span-3">
