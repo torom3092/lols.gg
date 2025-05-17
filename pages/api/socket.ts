@@ -62,6 +62,14 @@ function emitAuctionSync(io: IOServer) {
   io.emit("teamPanelSync", payload);
 }
 
+function emitCurrentPlayer(io: IOServer) {
+  const nameKey = state.currentPlayer?.name.trim();
+  const enriched = nameKey ? state.fullPlayerDataMap[nameKey] ?? {} : {};
+  const fullPlayer = { ...state.currentPlayer, ...enriched };
+
+  io.emit("showPlayer", fullPlayer);
+}
+
 function startCountdown(io: IOServer) {
   let count = 5;
   state.countdownTimer = setInterval(() => {
@@ -77,10 +85,7 @@ function startCountdown(io: IOServer) {
         return;
       }
 
-      const enriched = state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
-      const fullPlayer = { ...state.currentPlayer, ...enriched };
-      io.emit("showPlayer", fullPlayer);
-
+      emitCurrentPlayer(io);
       startBidding(io);
     }
 
@@ -182,9 +187,7 @@ function setupSocketHandlers(io: IOServer) {
         return;
       }
 
-      const enriched = state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
-      const fullPlayer = { ...state.currentPlayer, ...enriched };
-      io.emit("showPlayer", fullPlayer);
+      emitCurrentPlayer(io);
       startBidding(io);
     });
 
@@ -227,6 +230,13 @@ function setupSocketHandlers(io: IOServer) {
       });
 
       io.to(socketId).emit("userListUpdate", state.connectedUsers);
+
+      if (state.currentPlayer) {
+        const enriched =
+          state.fullPlayerDataMap[state.currentPlayer.name] ?? {};
+        const fullPlayer = { ...state.currentPlayer, ...enriched };
+        io.to(socketId).emit("showPlayer", fullPlayer); // ✅ 현재 플레이어 재전달
+      }
     });
 
     socket.on("resetAuction", () => {
@@ -250,7 +260,10 @@ function setupSocketHandlers(io: IOServer) {
   });
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponseWithSocket) {
+export default function handler(
+  req: NextApiRequest,
+  res: NextApiResponseWithSocket
+) {
   if (!res.socket.server.io) {
     const io = new SocketIOServer(res.socket.server, {
       path: "/api/socket",
