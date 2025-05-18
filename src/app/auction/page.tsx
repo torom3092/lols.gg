@@ -44,17 +44,19 @@ export default function AuctionPage() {
     };
   }, [joined, userId]);
 
-  const handleJoin = (selectedRole: string, selectedTeam?: string) => {
+  const handleJoin = async (selectedRole: string, selectedTeam?: string) => {
     const newUserId = selectedTeam ?? selectedRole;
     setUserId(newUserId);
     setRole(selectedRole);
     setTeam(selectedTeam ?? null);
     setJoined(true);
 
+    const stats = await fetch("/api/auction-player").then((res) => res.json());
     socket.emit("join", {
       userId: newUserId,
       role: selectedRole,
       team: selectedTeam ?? null,
+      fullPlayerDataMap: stats,
     });
   };
 
