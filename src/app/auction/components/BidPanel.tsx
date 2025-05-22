@@ -186,7 +186,7 @@ export default function BidPanel({
           <button
             onClick={() => {
               socket.emit("startAuction");
-              setAuctionStarted(true); // ✅ 추가
+              setAuctionStarted(true);
             }}
             className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded font-bold"
           >
@@ -202,17 +202,14 @@ export default function BidPanel({
             >
               ⏭️ 다음 사람
             </button>
-
-            <ResetButton
-     
-              setAuctionStarted={setAuctionStarted}
-            />
             <button
               className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded font-bold"
               onClick={() => socket.emit("startBidding")}
             >
               입찰 시작
             </button>
+
+            <ResetButton setAuctionStarted={setAuctionStarted} />
           </>
         )}
       </div>
