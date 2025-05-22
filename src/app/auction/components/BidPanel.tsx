@@ -48,9 +48,7 @@ export default function BidPanel({
 
   useEffect(() => {
     const handleUserJoined = ({ userId, role, team }: any) => {
-      const msg = `${userId} (${role}${
-        team ? ` / ${team}` : ""
-      }) 님이 접속하셨습니다`;
+      const msg = `${userId} (${role}${team ? ` / ${team}` : ""}) 님이 접속하셨습니다`;
       setJoinLog((prev) => [...prev, msg]);
     };
 
@@ -103,12 +101,17 @@ export default function BidPanel({
       }
     };
 
+    const handleChatMessage = (msg: string) => {
+      setJoinLog((prev) => [...prev, msg]);
+    };
+
     socket.on("tick", handleTick);
     socket.on("countdown", handleCountdown);
     socket.on("startBidding", handleStartBidding);
     socket.on("playerPassed", handlePlayerPassed);
     socket.on("updateBid", handleUpdateBid);
     socket.on("pointUpdate", handlePointUpdate);
+    socket.on("chatMessage", handleChatMessage);
 
     return () => {
       socket.off("tick", handleTick);
@@ -117,6 +120,7 @@ export default function BidPanel({
       socket.off("playerPassed", handlePlayerPassed);
       socket.off("updateBid", handleUpdateBid);
       socket.off("pointUpdate", handlePointUpdate);
+      socket.off("chatMessage", handleChatMessage);
     };
   }, [userId]);
 
@@ -124,9 +128,11 @@ export default function BidPanel({
     <div className="bg-blue-900 text-white p-4 rounded space-y-4 w-full max-w-xl text-center">
       <div className="bg-gray-700 w-full text-center py-2 rounded h-32 overflow-y-auto">
         {joinLog.map((msg, idx) => (
-          <p key={idx} className="text-sm text-yellow-300">
-            {msg}
-          </p>
+          msg === "----------" ? (
+            <hr key={idx} className="border-t border-yellow-300 my-2" />
+          ) : (
+            <p key={idx} className="text-sm text-yellow-300">{msg}</p>
+          )
         ))}
         {countdownText && (
           <div className="text-3xl font-extrabold text-red-400">
