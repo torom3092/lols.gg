@@ -190,7 +190,10 @@ export default function BidPanel({
             </button>
 
             <ResetButton />
-            <button onClick={() => socket.emit("startBidding")}>
+            <button
+              className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded font-bold"
+              onClick={() => socket.emit("startBidding")}
+            >
               입찰 시작
             </button>
           </>
