@@ -6,7 +6,7 @@ export interface PlayerBasic {
 }
 
 export const PLAYERS: PlayerBasic[] = [
-  { id: "P1", name: "브싸", tierCurrent: "에메1", tierPeak: "다이아4" },
+  { id: "P1", name: "브싸", tierCurrent: "다이아4", tierPeak: "다이아3" },
   { id: "P2", name: "김곤이", tierCurrent: "브론즈2", tierPeak: "플레3" },
   { id: "P3", name: "문어남자", tierCurrent: "플레4", tierPeak: "에메4" },
   { id: "P4", name: "유미집사", tierCurrent: "플레1", tierPeak: "다이아3" },
