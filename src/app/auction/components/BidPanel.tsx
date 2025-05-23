@@ -22,9 +22,7 @@ export default function BidPanel({
   const [highestBidder, setHighestBidder] = useState<string | null>(null);
   const [joinLog, setJoinLog] = useState<string[]>([]);
   const [countdownText, setCountdownText] = useState<string | null>(null);
-  const [auctionPhase, setAuctionPhase] = useState<
-    "waiting" | "showingPlayer" | "bidding"
-  >("waiting");
+  const [auctionPhase, setAuctionPhase] = useState<"waiting" | "showingPlayer" | "bidding">("waiting");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/^0+/, "");
@@ -49,9 +47,7 @@ export default function BidPanel({
 
   useEffect(() => {
     const handleUserJoined = ({ userId, role, team }: any) => {
-      const msg = `${userId} (${role}${
-        team ? ` / ${team}` : ""
-      }) 님이 접속하셨습니다`;
+      const msg = `${userId}  님이 접속하셨습니다`;
       setJoinLog((prev) => [...prev, msg]);
     };
 
@@ -83,10 +79,7 @@ export default function BidPanel({
     };
 
     const handlePlayerPassed = () => {
-      setJoinLog((prev) => [
-        ...prev,
-        "😢 유찰되었습니다. 다음 사람으로 넘어갑니다.",
-      ]);
+      setJoinLog((prev) => [...prev, " 유찰되었습니다. "]);
       setAuctionPhase("waiting");
       setRemainingTime(null);
     };
@@ -94,7 +87,7 @@ export default function BidPanel({
     const handleUpdateBid = ({ bid, userId }: any) => {
       setHighestBid(bid);
       setHighestBidder(userId);
-      const msg = `📢 ${userId}님이 ${bid} 포인트로 입찰했습니다`;
+      const msg = ` ${userId}님이 ${bid} 포인트로 입찰했습니다`;
       setJoinLog((prev) => [...prev, msg]);
     };
 
@@ -139,17 +132,11 @@ export default function BidPanel({
             </p>
           )
         )}
-        {countdownText && (
-          <div className="text-3xl font-extrabold text-red-400">
-            ⏱️ {countdownText}
-          </div>
-        )}
+        {countdownText && <div className="text-3xl font-extrabold text-red-400">⏱️ {countdownText}</div>}
       </div>
 
       <div className="bg-yellow-400 text-black font-bold text-xl py-2 rounded">
-        {remainingTime !== null
-          ? `TIME COUNT ${remainingTime}`
-          : "TIME COUNT 대기 중"}
+        {remainingTime !== null ? `TIME COUNT ${remainingTime}` : "TIME COUNT 대기 중"}
       </div>
 
       <div className="grid grid-cols-4 gap-2">
@@ -175,10 +162,7 @@ export default function BidPanel({
           className="py-2 px-2 text-black rounded text-center font-bold"
           placeholder="포인트 입력"
         />
-        <button
-          onClick={handleBid}
-          className="bg-sky-500 hover:bg-sky-600 py-2 rounded font-bold"
-        >
+        <button onClick={handleBid} className="bg-sky-500 hover:bg-sky-600 py-2 rounded font-bold">
           입찰
         </button>
 
@@ -203,7 +187,7 @@ export default function BidPanel({
               ⏭️ 다음 사람
             </button>
             <button
-              className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded font-bold"
+              className="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-2 rounded font-bold"
               onClick={() => socket.emit("startBidding")}
             >
               입찰 시작
