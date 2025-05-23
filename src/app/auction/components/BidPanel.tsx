@@ -14,6 +14,7 @@ export default function BidPanel({
   userId: string | null;
 }) {
   const socket = getSocket();
+  const [auctionStarted, setAuctionStarted] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [bidAmount, setBidAmount] = useState("0");
   const [pointsLeft, setPointsLeft] = useState(1000);
@@ -21,7 +22,9 @@ export default function BidPanel({
   const [highestBidder, setHighestBidder] = useState<string | null>(null);
   const [joinLog, setJoinLog] = useState<string[]>([]);
   const [countdownText, setCountdownText] = useState<string | null>(null);
-  const [auctionPhase, setAuctionPhase] = useState<"waiting" | "showingPlayer" | "bidding">("waiting");
+  const [auctionPhase, setAuctionPhase] = useState<
+    "waiting" | "showingPlayer" | "bidding"
+  >("waiting");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/^0+/, "");
@@ -46,7 +49,9 @@ export default function BidPanel({
 
   useEffect(() => {
     const handleUserJoined = ({ userId, role, team }: any) => {
-      const msg = `${userId} (${role}${team ? ` / ${team}` : ""}) 님이 접속하셨습니다`;
+      const msg = `${userId} (${role}${
+        team ? ` / ${team}` : ""
+      }) 님이 접속하셨습니다`;
       setJoinLog((prev) => [...prev, msg]);
     };
 
@@ -78,7 +83,10 @@ export default function BidPanel({
     };
 
     const handlePlayerPassed = () => {
-      setJoinLog((prev) => [...prev, "😢 유찰되었습니다. 다음 사람으로 넘어갑니다."]);
+      setJoinLog((prev) => [
+        ...prev,
+        "😢 유찰되었습니다. 다음 사람으로 넘어갑니다.",
+      ]);
       setAuctionPhase("waiting");
       setRemainingTime(null);
     };
@@ -96,12 +104,17 @@ export default function BidPanel({
       }
     };
 
+    const handleChatMessage = (msg: string) => {
+      setJoinLog((prev) => [...prev, msg]);
+    };
+
     socket.on("tick", handleTick);
     socket.on("countdown", handleCountdown);
     socket.on("startBidding", handleStartBidding);
     socket.on("playerPassed", handlePlayerPassed);
     socket.on("updateBid", handleUpdateBid);
     socket.on("pointUpdate", handlePointUpdate);
+    socket.on("chatMessage", handleChatMessage);
 
     return () => {
       socket.off("tick", handleTick);
@@ -110,22 +123,33 @@ export default function BidPanel({
       socket.off("playerPassed", handlePlayerPassed);
       socket.off("updateBid", handleUpdateBid);
       socket.off("pointUpdate", handlePointUpdate);
+      socket.off("chatMessage", handleChatMessage);
     };
   }, [userId]);
 
   return (
     <div className="bg-blue-900 text-white p-4 rounded space-y-4 w-full max-w-xl text-center">
       <div className="bg-gray-700 w-full text-center py-2 rounded h-32 overflow-y-auto">
-        {joinLog.map((msg, idx) => (
-          <p key={idx} className="text-sm text-yellow-300">
-            {msg}
-          </p>
-        ))}
-        {countdownText && <div className="text-3xl font-extrabold text-red-400">⏱️ {countdownText}</div>}
+        {joinLog.map((msg, idx) =>
+          msg === "----------" ? (
+            <hr key={idx} className="border-t border-yellow-300 my-2" />
+          ) : (
+            <p key={idx} className="text-sm text-yellow-300">
+              {msg}
+            </p>
+          )
+        )}
+        {countdownText && (
+          <div className="text-3xl font-extrabold text-red-400">
+            ⏱️ {countdownText}
+          </div>
+        )}
       </div>
 
       <div className="bg-yellow-400 text-black font-bold text-xl py-2 rounded">
-        {remainingTime !== null ? `TIME COUNT ${remainingTime}` : "TIME COUNT 대기 중"}
+        {remainingTime !== null
+          ? `TIME COUNT ${remainingTime}`
+          : "TIME COUNT 대기 중"}
       </div>
 
       <div className="grid grid-cols-4 gap-2">
@@ -151,13 +175,19 @@ export default function BidPanel({
           className="py-2 px-2 text-black rounded text-center font-bold"
           placeholder="포인트 입력"
         />
-        <button onClick={handleBid} className="bg-sky-500 hover:bg-sky-600 py-2 rounded font-bold">
+        <button
+          onClick={handleBid}
+          className="bg-sky-500 hover:bg-sky-600 py-2 rounded font-bold"
+        >
           입찰
         </button>
 
-        {role === "host" && (
+        {role === "host" && !auctionStarted && (
           <button
-            onClick={() => socket.emit("startAuction")}
+            onClick={() => {
+              socket.emit("startAuction");
+              setAuctionStarted(true);
+            }}
             className="bg-green-500 hover:bg-green-600 px-6 py-2 rounded font-bold"
           >
             🎬 경매 시작
@@ -172,8 +202,14 @@ export default function BidPanel({
             >
               ⏭️ 다음 사람
             </button>
+            <button
+              className="bg-purple-500 hover:bg-purple-600 px-6 py-2 rounded font-bold"
+              onClick={() => socket.emit("startBidding")}
+            >
+              입찰 시작
+            </button>
 
-            <ResetButton />
+            <ResetButton setAuctionStarted={setAuctionStarted} />
           </>
         )}
       </div>

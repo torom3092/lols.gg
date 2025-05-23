@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { getSocket } from "@/lib/socket";
 
-export default function ResetButton() {
+export default function ResetButton(setAuctionStarted: any) {
   useEffect(() => {
     const socket = getSocket();
     socket.on("userListUpdate", () => {});
