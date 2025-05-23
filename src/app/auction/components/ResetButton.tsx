@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getSocket } from "@/lib/socket";
 
 export default function ResetButton() {
@@ -11,11 +11,14 @@ export default function ResetButton() {
     return () => {
       socket.off("userListUpdate");
     };
-  });
+  }, []);
 
   const handleReset = () => {
-    const socket = getSocket();
-    socket.emit("resetAuction");
+    const confirmed = window.confirm("정말로 경매를 초기화하시겠습니까?");
+    if (confirmed) {
+      const socket = getSocket();
+      socket.emit("resetAuction");
+    }
   };
 
   return (
