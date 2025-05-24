@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 
-const TEAM_OPTIONS = ["벅벅가", "문어남자", "브싸", "올리버"];
+const TEAM_OPTIONS = ["벅벅가", "낮달", "브싸", "올리버"];
 
 export default function RoleSelector({ onJoin }: { onJoin: (role: string, teamName?: string) => void }) {
   const [role, setRole] = useState<string | null>(null);
