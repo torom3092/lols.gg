@@ -21,5 +21,5 @@ export const PLAYERS: PlayerBasic[] = [
   { id: "P13", name: "콩알몬", tierCurrent: "골드4", tierPeak: "에메3" },
   { id: "P14", name: "서해주", tierCurrent: "골드4", tierPeak: "에메4" },
   { id: "P15", name: "나왔니요", tierCurrent: "언랭", tierPeak: "골드2" },
-  { id: "P16", name: "대현철", tierCurrent: "에메2", tierPeak: "마스터터" },
+  { id: "P16", name: "대현철", tierCurrent: "에메2", tierPeak: "마스터" },
 ];
