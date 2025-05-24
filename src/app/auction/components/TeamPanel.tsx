@@ -6,13 +6,13 @@ import { getSocket } from "@/lib/socket";
 import { PlayerBasic } from "@/lib/players";
 
 const TEAM_LABELS: Record<string, string> = {
-  그카: "팀 그카",
-  고전퐈: "팀 고전퐈",
-  wisp: "팀 wisp",
-  khc: "팀 khc",
+  벅벅가: "팀 벅벅가",
+  낮달: "팀 낮달",
+  브싸: "팀 브싸",
+  올리버버: "팀 올리버",
 };
 
-const TEAM_ORDER = ["그카", "고전퐈", "wisp", "khc"];
+const TEAM_ORDER = ["벅벅가", "낮달", "브싸", "올리버"];
 
 interface HistoryEntry {
   team: string;
